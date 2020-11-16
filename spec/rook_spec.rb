@@ -13,12 +13,12 @@ describe Rook do
       expect(black_rook.color).to eq('black')
     end
 
-    it "should assign ♖ as the white rook's symbol" do
-      expect(white_rook.symbol).to eq('♖')
+    it "should assign ♜ as the white rook's symbol" do
+      expect(white_rook.symbol).to eq('♜')
     end
 
-    it "should assign ♜ as the black rook's symbol" do
-      expect(black_rook.symbol).to eq('♜')
+    it "should assign ♖ as the black rook's symbol" do
+      expect(black_rook.symbol).to eq('♖')
     end
   end
 end

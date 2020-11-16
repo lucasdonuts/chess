@@ -13,12 +13,12 @@ describe Pawn do
       expect(black_pawn.color).to eq('black')
     end
 
-    it "should assign ♙ as the white pawn's symbol" do
-      expect(white_pawn.symbol).to eq('♙')
+    it "should assign ♟ as the white pawn's symbol" do
+      expect(white_pawn.symbol).to eq('♟')
     end
 
-    it "should assign ♟ as the black pawn's symbol" do
-      expect(black_pawn.symbol).to eq('♟')
+    it "should assign ♙ as the black pawn's symbol" do
+      expect(black_pawn.symbol).to eq('♙')
     end
   end
 end

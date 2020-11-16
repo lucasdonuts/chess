@@ -9,7 +9,7 @@ class Bishop < Piece
   end
 
   def select_symbol
-    @color == 'white' ? '♗' : '♝'
+    @color == 'white' ? '♝' : '♗'
   end
 
 end

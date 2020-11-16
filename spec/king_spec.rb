@@ -13,12 +13,12 @@ describe King do
       expect(black_king.color).to eq('black')
     end
 
-    it "should assign ♔ as the white king's symbol" do
-      expect(white_king.symbol).to eq('♔')
+    it "should assign ♚ as the white king's symbol" do
+      expect(white_king.symbol).to eq('♚')
     end
 
-    it "should assign ♚ as the black king's symbol" do
-      expect(black_king.symbol).to eq('♚')
+    it "should assign ♔ as the black king's symbol" do
+      expect(black_king.symbol).to eq('♔')
     end
   end
 end

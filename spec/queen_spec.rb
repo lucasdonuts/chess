@@ -13,12 +13,12 @@ describe Queen do
       expect(black_queen.color).to eq('black')
     end
 
-    it "should assign ♕ as the white queen's symbol" do
-      expect(white_queen.symbol).to eq('♕')
+    it "should assign ♛ as the white queen's symbol" do
+      expect(white_queen.symbol).to eq('♛')
     end
 
-    it "should assign ♛ as the black queen's symbol" do
-      expect(black_queen.symbol).to eq('♛')
+    it "should assign ♕ as the black queen's symbol" do
+      expect(black_queen.symbol).to eq('♕')
     end
   end
 end

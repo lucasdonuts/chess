@@ -13,12 +13,12 @@ describe Knight do
       expect(black_knight.color).to eq('black')
     end
 
-    it "should assign ♘ as the white knight's symbol" do
-      expect(white_knight.symbol).to eq('♘')
+    it "should assign ♞ as the white knight's symbol" do
+      expect(white_knight.symbol).to eq('♞')
     end
 
-    it "should assign ♞ as the black knight's symbol" do
-      expect(black_knight.symbol).to eq('♞')
+    it "should assign ♘ as the black knight's symbol" do
+      expect(black_knight.symbol).to eq('♘')
     end
   end
 end

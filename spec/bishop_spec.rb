@@ -13,12 +13,12 @@ describe Bishop do
       expect(black_bishop.color).to eq('black')
     end
 
-    it "should assign ♗ as a white bishop's symbol" do
-      expect(white_bishop.symbol).to eq('♗')
+    it "should assign ♝ as a white bishop's symbol" do
+      expect(white_bishop.symbol).to eq('♝')
     end
 
-    it "should assign ♝ as the the black bishop's symbol" do
-      expect(black_bishop.symbol).to eq('♝')
+    it "should assign ♗ as the the black bishop's symbol" do
+      expect(black_bishop.symbol).to eq('♗')
     end
   end
 end

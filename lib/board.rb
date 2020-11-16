@@ -1,4 +1,10 @@
-
+require_relative 'pieces/piece.rb'
+require_relative 'pieces/pawn.rb'
+require_relative 'pieces/rook.rb'
+require_relative 'pieces/knight.rb'
+require_relative 'pieces/bishop.rb'
+require_relative 'pieces/queen.rb'
+require_relative 'pieces/king.rb'
 
 class Board
   attr_reader :board
@@ -14,6 +20,18 @@ class Board
 
   def square_empty?(square)
     @board[square[0]][square[1]].nil?
+  end
+
+  def display_board
+    puts "\n\n\n                 -   -   -   -   -   -   -   - "
+    7.downto(0) do |x|
+      print "               | "
+      0.upto(7) do |y|
+        print board[y][x].nil? ? "  | " : "#{board[y][x].symbol} | "
+      end
+      print "\n                 -   -   -   -   -   -   -   - \n"
+    end
+    puts "\n\n\n"
   end
 
   def place_starting_pieces
@@ -52,3 +70,6 @@ class Board
     @board[4][7] = King.new('black')
   end
 end
+
+board = Board.new
+board.display_board
