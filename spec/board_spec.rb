@@ -11,7 +11,6 @@ describe Board do
 
     describe "#place_starting_pieces" do
       it "should place white pawns in correct starting positions" do
-        board.place_starting_pieces
         expect(board.board[0][1]).to be_an_instance_of(Pawn)
         expect(board.board[1][1]).to be_an_instance_of(Pawn)
         expect(board.board[2][1]).to be_an_instance_of(Pawn)
@@ -23,35 +22,29 @@ describe Board do
       end
 
       it "should place white rooks in correct starting positions" do
-        board.place_starting_pieces
         expect(board.board[0][0]).to be_an_instance_of(Rook)
         expect(board.board[7][0]).to be_an_instance_of(Rook)
       end
 
       it "should place white knights in correct starting positions" do
-        board.place_starting_pieces
         expect(board.board[1][0]).to be_an_instance_of(Knight)
         expect(board.board[6][0]).to be_an_instance_of(Knight)
       end
 
       it "should place white bishops in correct starting positions" do
-        board.place_starting_pieces
         expect(board.board[2][0]).to be_an_instance_of(Bishop)
         expect(board.board[5][0]).to be_an_instance_of(Bishop)
       end
 
       it "should place white queen in correct starting position" do
-        board.place_starting_pieces
         expect(board.board[3][0]).to be_an_instance_of(Queen)
       end
 
       it "should place white king in correct starting position" do
-        board.place_starting_pieces
         expect(board.board[4][0]).to be_an_instance_of(King)
       end
 
       it "should place black pawns in correct starting positions" do
-        board.place_starting_pieces
         expect(board.board[0][6]).to be_an_instance_of(Pawn)
         expect(board.board[1][6]).to be_an_instance_of(Pawn)
         expect(board.board[2][6]).to be_an_instance_of(Pawn)
@@ -63,30 +56,25 @@ describe Board do
       end
 
       it "should place black rooks in correct starting positions" do
-        board.place_starting_pieces
         expect(board.board[0][0]).to be_an_instance_of(Rook)
         expect(board.board[7][0]).to be_an_instance_of(Rook)
       end
 
       it "should place black knights in correct starting positions" do
-        board.place_starting_pieces
         expect(board.board[1][0]).to be_an_instance_of(Knight)
         expect(board.board[6][0]).to be_an_instance_of(Knight)
       end
 
       it "should place black bishops in correct starting positions" do
-        board.place_starting_pieces
         expect(board.board[2][0]).to be_an_instance_of(Bishop)
         expect(board.board[5][0]).to be_an_instance_of(Bishop)
       end
 
       it "should place black queen in correct starting position" do
-        board.place_starting_pieces
         expect(board.board[3][0]).to be_an_instance_of(Queen)
       end
 
       it "should place black king in correct starting position" do
-        board.place_starting_pieces
         expect(board.board[4][0]).to be_an_instance_of(King)
       end
     end
@@ -108,13 +96,45 @@ describe Board do
     end
 
     describe "#square_empty?" do
-      board.board[0][0] = 'X'
       it "should return true when there is no piece at destination" do
         expect(board.square_empty?([3, 3])).to be true
       end
 
       it "should return false when destination is occupied" do
         expect(board.square_empty?([0, 0])).to be false
+      end
+    end
+
+    describe "#current_players_piece?" do
+      it "should return true when player 1 selects a white piece" do
+        player1 = Player.new('Player 1', 'white')
+        piece = board.board[0][1]
+        expect(board.current_players_piece?(piece, player1)).to eq true
+      end
+
+      it "should return false when player 2 selects a white piece" do
+        player2 = Player.new('Player 2', 'black')
+        piece = board.board[0][1]
+        expect(board.current_players_piece?(piece, player2)).to eq false
+      end
+
+      it "should return true when player 2 selects a black piece" do
+        player2 = Player.new('Player 2', 'black')
+        piece = board.board[0][6]
+        expect(board.current_players_piece?(piece, player2)).to eq true
+      end
+
+      it "should return false when player 1 selects a black piece" do
+        player1 = Player.new('Player 1', 'white')
+        piece = board.board[0][6]
+        expect(board.current_players_piece?(piece, player1)).to eq false
+      end
+    end
+
+    describe "#path_obstructed?" do
+      it "should return true when queen's path is blocked" do
+        skip
+        expect(board.path_obstructed?(piece)).to eq true
       end
     end
   end

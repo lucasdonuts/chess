@@ -69,6 +69,10 @@ class Board
     @board[3][7] = Queen.new('black')
     @board[4][7] = King.new('black')
   end
+
+  def current_players_piece?(piece, current_player)
+    piece.color == current_player.color
+  end
 end
 
 board = Board.new
