@@ -23,8 +23,4 @@ describe Game do
       expect(game.checkmate_message).to eq("Checkmate!")
     end
   end
-
-  describe "#play_again?" do
-    
-  end
 end

@@ -33,4 +33,6 @@ class Game
   def checkmate_message
     "Checkmate!"
   end
+
+  
 end

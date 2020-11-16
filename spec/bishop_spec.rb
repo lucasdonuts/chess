@@ -2,15 +2,15 @@ require './lib/pieces/bishop.rb'
 
 describe Bishop do
   describe "#initialize" do
-    white_bishop = Bishop.new('white')
-    black_bishop = Bishop.new('black')
+    white_bishop = Bishop.new(:white, [2, 0])
+    black_bishop = Bishop.new(:black, [2, 7])
 
     it "should create a bishop piece with the color white" do
-      expect(white_bishop.color).to eq('white')
+      expect(white_bishop.color).to eq(:white)
     end
 
     it "should create a bishop piece with the color black" do
-      expect(black_bishop.color).to eq('black')
+      expect(black_bishop.color).to eq(:black)
     end
 
     it "should assign ♝ as a white bishop's symbol" do

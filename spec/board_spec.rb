@@ -1,4 +1,5 @@
 require './lib/board.rb'
+# currently writing and testing path_obstructed? method, currently only checks destination
 
 describe Board do
   board = Board.new
@@ -107,34 +108,113 @@ describe Board do
 
     describe "#current_players_piece?" do
       it "should return true when player 1 selects a white piece" do
-        player1 = Player.new('Player 1', 'white')
+        player1 = Player.new('Player 1', :white)
         piece = board.board[0][1]
         expect(board.current_players_piece?(piece, player1)).to eq true
       end
 
       it "should return false when player 2 selects a white piece" do
-        player2 = Player.new('Player 2', 'black')
+        player2 = Player.new('Player 2', :black)
         piece = board.board[0][1]
         expect(board.current_players_piece?(piece, player2)).to eq false
       end
 
       it "should return true when player 2 selects a black piece" do
-        player2 = Player.new('Player 2', 'black')
+        player2 = Player.new('Player 2', :black)
         piece = board.board[0][6]
         expect(board.current_players_piece?(piece, player2)).to eq true
       end
 
       it "should return false when player 1 selects a black piece" do
-        player1 = Player.new('Player 1', 'white')
+        player1 = Player.new('Player 1', :white)
         piece = board.board[0][6]
         expect(board.current_players_piece?(piece, player1)).to eq false
       end
     end
 
+    describe "#get_white_positions" do
+      white_positions = board.get_white_positions
+
+      it "should return an array" do
+        expect(white_positions).to be_a(Array)
+      end
+
+      it "should only contain squares occupied by white pieces" do
+        expect(board.board[white_positions[0][0]][white_positions[0][1]].color).to be(:white)
+        expect(board.board[white_positions[7][0]][white_positions[7][1]].color).to be(:white)
+        expect(board.board[white_positions.last[0]][white_positions.last[1]].color).to be(:white)
+      end
+    end
+
+    describe "#get_black_positions" do
+      black_positions = board.get_black_positions
+
+      it "should return an array" do
+        expect(black_positions).to be_a(Array)
+      end
+
+      it "should only contain squares occupied by black pieces" do
+        expect(board.board[black_positions[0][0]][black_positions[0][1]].color).to be(:black)
+        expect(board.board[black_positions[7][0]][black_positions[7][1]].color).to be(:black)
+        expect(board.board[black_positions.last[0]][black_positions.last[1]].color).to be(:black)
+      end
+    end
+
     describe "#path_obstructed?" do
-      it "should return true when queen's path is blocked" do
-        skip
-        expect(board.path_obstructed?(piece)).to eq true
+      context "checking knight paths" do
+        board = Board.new
+        knight = board.board[1][0]
+        it "should return true when destination occupied by friendly piece" do
+          expect(board.path_obstructed?(knight, [3, 1])).to eq true
+        end
+
+        it "should return false when destination is unoccupied" do
+          expect(board.path_obstructed?(knight, [3, 2])).to eq false
+        end
+
+        it "should return false when destination is occupied by enemy piece" do
+          board.board[2][2] = Pawn.new(:black, [2, 2])
+          expect(board.path_obstructed?(knight, [2, 2])).to eq false
+        end
+      end
+
+      context "checking pawn paths" do
+        board = Board.new
+        pawn = board.board[3][1]
+
+        it "should return false when destination is unoccupied" do
+          expect(board.path_obstructed?(pawn, [3, 2])).to eq false
+        end
+
+        it "should return true when destination occupied by friendly piece" do
+          board.board[3][2] = Knight.new(:white, [3, 2])
+          expect(board.path_obstructed?(pawn, [3, 2])).to eq true
+        end
+
+        it "should return false when destination is occupied by enemy piece" do
+          board.board[3][2] = Pawn.new(:black, [3, 2])
+          expect(board.path_obstructed?(pawn, [3, 2])).to eq false
+        end
+      end
+
+      context "check queen paths" do
+        board = Board.new
+        queen = board.board[3][0]
+
+        it "should return false when destination is unoccupied" do
+          board.board[3][1] = nil
+          expect(board.path_obstructed?(queen, [3, 1])).to eq false
+        end
+
+        it "should return true when destination occupied by friendly piece" do
+          board.board[3][2] = Knight.new(:white, [3, 2])
+          expect(board.path_obstructed?(queen, [3, 2])).to eq true
+        end
+
+        it "should return false when destination is occupied by enemy piece" do
+          board.board[3][2] = Pawn.new(:black, [3, 2])
+          expect(board.path_obstructed?(queen, [3, 2])).to eq false
+        end
       end
     end
   end
