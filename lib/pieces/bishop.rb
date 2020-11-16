@@ -1,6 +1,6 @@
 require_relative 'piece.rb'
 
-class Knight < Piece
+class Bishop < Piece
   attr_reader :symbol
 
   def initialize(color)
@@ -9,6 +9,7 @@ class Knight < Piece
   end
 
   def select_symbol
-    @color == 'white' ? '♘' : '♞'
+    @color == 'white' ? '♗' : '♝'
   end
+
 end
