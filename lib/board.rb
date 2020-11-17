@@ -37,14 +37,10 @@ class Board
   end
 
   def place_starting_pieces
-    @board[0][1] = Pawn.new(:white, [0, 1])
-    @board[1][1] = Pawn.new(:white, [1, 1])
-    @board[2][1] = Pawn.new(:white, [2, 1])
-    @board[3][1] = Pawn.new(:white, [3, 1])
-    @board[4][1] = Pawn.new(:white, [4, 1])
-    @board[5][1] = Pawn.new(:white, [5, 1])
-    @board[6][1] = Pawn.new(:white, [6, 1])
-    @board[7][1] = Pawn.new(:white, [7, 1])
+    (0..7).each do |x|
+      @board[x][1] = Pawn.new(:white, [x, 1])
+      @board[x][6] = Pawn.new(:black, [x, 6])
+    end
     @board[0][0] = Rook.new(:white, [0, 0])
     @board[7][0] = Rook.new(:white, [7, 0])
     @board[1][0] = Knight.new(:white, [1, 0])
@@ -54,14 +50,6 @@ class Board
     @board[3][0] = Queen.new(:white, [3, 0])
     @board[4][0] = King.new(:white, [4, 0])
 
-    @board[0][6] = Pawn.new(:black, [0, 6])
-    @board[1][6] = Pawn.new(:black, [1, 6])
-    @board[2][6] = Pawn.new(:black, [2, 6])
-    @board[3][6] = Pawn.new(:black, [3, 6])
-    @board[4][6] = Pawn.new(:black, [4, 6])
-    @board[5][6] = Pawn.new(:black, [5, 6])
-    @board[6][6] = Pawn.new(:black, [6, 6])
-    @board[7][6] = Pawn.new(:black, [7, 6])
     @board[0][7] = Rook.new(:black, [0, 7])
     @board[7][7] = Rook.new(:black, [7, 7])
     @board[1][7] = Knight.new(:black, [1, 7])
@@ -98,12 +86,40 @@ class Board
     black_positions
   end
 
+  def get_moves(piece, board)
+    moves = piece.get_moves(board)
+  end
+
   def path_obstructed?(piece, destination)
     friendly_piece_locations = piece.color == :white ? get_white_positions : get_black_positions
     friendly_piece_locations.include?(destination)
+
+  end
+
+  def pawn_possible_captures(pawn)
+    x = pawn.location[0]
+    y = pawn.location[1]
+    possible_captures = []
+    case pawn.color
+    when :white
+      possible_captures << [x + 1, y + 1] unless @board[x + 1][y + 1].nil? || @board[x + 1][y + 1].color == :white
+      possible_captures << [x - 1, y + 1] unless @board[x - 1][y + 1].nil? || @board[x - 1][y + 1].color == :white
+    when :black
+      possible_captures << [x + 1, y - 1] unless @board[x + 1][y - 1].nil? || @board[x + 1][y - 1].color == :black
+      possible_captures << [x - 1, y - 1] unless @board[x - 1][y - 1].nil? || @board[x - 1][y - 1].color == :black
+    end
+    possible_captures
   end
 end
 
-# board = Board.new
+board = Board.new
+pawn = board.board[3][1]
+board.board[2][2] = Pawn.new(:black, [2, 2])
+board.board[4][2] = Pawn.new(:black, [4, 2])
+pawn.get_captures(board)
 # board.display_board
+# p board.pawn_possible_captures(board.board[3][1])
 # p board.path_obstructed?(board.board[0][1], [0, 2])
+# board.board[2][2] = Pawn.new(:black, [2, 2])
+# board.display_board
+# p board.pawn_possible_captures(board.board[3][1])

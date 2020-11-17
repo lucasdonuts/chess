@@ -218,4 +218,98 @@ describe Board do
       end
     end
   end
+
+  context "pawn captures" do
+    describe "#pawn_possible_captures" do
+      context "white pawns" do
+        it "should return an empty array when there are no pieces to capture" do
+          board = Board.new
+          expect(board.pawn_possible_captures(board.board[3][1])).to eq []
+        end
+
+        it "should return an empty array when friendly pieces are at capture spots" do
+          board.board[2][2] = Pawn.new(:white, [2, 2])
+          board.board[4][2] = Pawn.new(:white, [4, 2])
+          expect(board.pawn_possible_captures(board.board[3][1])).to eq []
+        end
+
+        it "should only return coordinates containing enemy pieces" do
+          board.board[2][2] = Pawn.new(:black, [2, 2])
+          expect(board.pawn_possible_captures(board.board[3][1])).to eq([[2, 2]])
+        end
+
+        it "should show both captures if there are two" do
+          board.board[4][2] = Pawn.new(:black, [4, 2])
+          expect(board.pawn_possible_captures(board.board[3][1])).to include([4, 2], [2, 2])
+        end
+      end
+
+      context "black pawns" do
+        it "should return an empty array when there are no pieces to capture" do
+          board = Board.new
+          expect(board.pawn_possible_captures(board.board[3][6])).to eq []
+        end
+
+        it "should return an empty array when friendly pieces are at capture spots" do
+          board.board[2][5] = Pawn.new(:black, [2, 5])
+          board.board[4][5] = Pawn.new(:black, [4, 5])
+          expect(board.pawn_possible_captures(board.board[3][6])).to eq []
+        end
+
+        it "should only return coordinates containing enemy pieces" do
+          board.board[2][5] = Pawn.new(:white, [2, 5])
+          expect(board.pawn_possible_captures(board.board[3][6])).to eq([[2, 5]])
+        end
+
+        it "should show both captures if there are two" do
+          board.board[4][5] = Pawn.new(:white, [4, 5])
+          expect(board.pawn_possible_captures(board.board[3][6])).to include([4, 5], [2, 5])
+        end
+      end
+    end
+  end
+
+  context "getting move lists" do
+    describe "#get_moves" do
+      context "from pawns" do
+        it "should list 2 moves on pawn's first move with clear path" do
+          board = Board.new
+          pawn = board.board[3][1]
+          expect(board.get_moves(pawn, board).size).to be 2
+        end
+
+        it "should only list 1 move: forward 1 square, when not first move" do
+          pawn = board.board[3][1]
+          pawn.first_move = false
+          expect(board.get_moves(pawn, board).size).to be 1
+          expect(board.get_moves(pawn, board)).to eq [[3, 2]]
+        end
+
+        it "should list no moves when enemy piece is right in front with no capture possibilities" do
+          board = Board.new
+          pawn = board.board[3][1]
+          board.board[3][2] = Pawn.new(:black, [3, 2])
+          expect(board.get_moves(pawn, board)).to eq []
+        end
+
+        it "should list no moves when friendly piece is right in front with no capture possibilities" do
+          board = Board.new
+          pawn = board.board[3][1]
+          board.board[3][2] = Pawn.new(:white, [3, 2])
+          expect(board.get_moves(pawn, board)).to eq []
+        end
+
+        it "should list 4 possible moves on first move with 2 possible captures" do
+          board = Board.new
+          pawn = board.board[3][1]
+          board.board[3][2] = nil
+          board.board[2][2] = Pawn.new(:black, [2, 2])
+          board.board[4][2] = Pawn.new(:black, [4, 2])
+          board.display_board
+          p board.get_moves(pawn, board)
+          expect(board.get_moves(pawn, board).size).to eq 4
+        end
+      end
+    end
+  end
 end
