@@ -5,7 +5,7 @@ Implement get move functions DO THIS NEXT FOR ALL PIECES
   knight DONE
   queen
   king
-  rook
+  rook DONE (Except for castling, most likely will be in king class)
   bishop
 
 Decide if get_moves needs to be tested in board_spec or not
@@ -15,7 +15,7 @@ Add menu functionality to input validation
   Help
   Quit
   Save
-  
+
 Refactor board tests
   current_players_piece? doesn't need to create player instances or create a variable for piece DONE
   Redundant functions and tests?
