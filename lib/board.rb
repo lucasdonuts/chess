@@ -6,13 +6,13 @@ require_relative 'pieces/bishop.rb'
 require_relative 'pieces/queen.rb'
 require_relative 'pieces/king.rb'
 
-# currently writing and testing path_obstructed? method, currently only checks destination
-
 class Board
   attr_reader :board
+  attr_accessor :passant_pawn
 
   def initialize
     @board = Array.new(8) { Array.new(8) }
+    @passant_pawn = nil
     place_starting_pieces
   end
 
@@ -60,66 +60,111 @@ class Board
     @board[4][7] = King.new(:black, [4, 7])
   end
 
-  def current_players_piece?(piece, current_player)
-    piece.color == current_player.color
+  def current_players_piece?(piece, player_color)
+    piece.color == player_color
   end
 
-  def get_white_positions
-    white_positions = []
-
-    8.times do |x|
-      8.times do |y|
-        white_positions << board[x][y].location unless board[x][y].nil? || board[x][y].color == :black
-      end
+  def valid_selection?(coords, player_color)
+    if square_empty?(coords)
+      puts "\nThere is no piece there."
+      return false
+    elsif !current_players_piece?(@board[coords[0]][coords[1]], player_color)
+      puts "\nThat is not your piece."
+      return false
+    else
+      true
     end
-    white_positions
   end
 
-  def get_black_positions
-    black_positions = []
+  def valid_destination?(piece, destination)
+    moves = piece.get_moves(self)
+    moves.include?(destination)
+  end
 
-    8.times do |x|
-      8.times do |y|
-        black_positions << board[x][y].location unless board[x][y].nil? || board[x][y].color == :white
+  def passant_check(piece, destination)
+    if piece.symbol == '♙' && piece.location[1] - 2 == destination[1]
+      # If a black pawn wants to move 2 squares forward
+      @passant_pawn = Pawn.new(:white, [destination[0], destination[1] + 1])
+      @passant_pawn.symbol = " "
+    elsif piece.symbol == '♟' && piece.location[1] + 2 == destination[1]
+      # if a white pawn wants to move 2 squares forward
+      @passant_pawn = Pawn.new(:white, [destination[0], destination[1] - 1])
+      @passant_pawn.symbol = " "
+    elsif passant_capture?(destination)
+      if piece.color == :white
+        @board[destination[0]][destination[1] - 1] = nil
+      else
+        @board[destination[0]][destination[1] + 1] = nil
       end
+      @passant_pawn = nil
+    else
+      @passant_pawn = nil
     end
-    black_positions
+  end
+
+  def passant_capture?(destination)
+    !@passant_pawn.nil? && destination == @passant_pawn.location
+  end
+
+  def move_piece(piece, destination)
+    passant_check(piece, destination)
+    from = piece.location
+    @board[from[0]][from[1]] = nil
+    @board[destination[0]][destination[1]] = piece
+    piece.location = destination
+    if piece.symbol == '♙' || piece.symbol == '♟'
+      piece.first_move = false
+    end
   end
 
   def get_moves(piece, board)
     moves = piece.get_moves(board)
   end
-
-  def path_obstructed?(piece, destination)
-    friendly_piece_locations = piece.color == :white ? get_white_positions : get_black_positions
-    friendly_piece_locations.include?(destination)
-
-  end
-
-  def pawn_possible_captures(pawn)
-    x = pawn.location[0]
-    y = pawn.location[1]
-    possible_captures = []
-    case pawn.color
-    when :white
-      possible_captures << [x + 1, y + 1] unless @board[x + 1][y + 1].nil? || @board[x + 1][y + 1].color == :white
-      possible_captures << [x - 1, y + 1] unless @board[x - 1][y + 1].nil? || @board[x - 1][y + 1].color == :white
-    when :black
-      possible_captures << [x + 1, y - 1] unless @board[x + 1][y - 1].nil? || @board[x + 1][y - 1].color == :black
-      possible_captures << [x - 1, y - 1] unless @board[x - 1][y - 1].nil? || @board[x - 1][y - 1].color == :black
-    end
-    possible_captures
-  end
 end
 
-board = Board.new
-pawn = board.board[3][1]
-board.board[2][2] = Pawn.new(:black, [2, 2])
-board.board[4][2] = Pawn.new(:black, [4, 2])
-pawn.get_captures(board)
-# board.display_board
-# p board.pawn_possible_captures(board.board[3][1])
-# p board.path_obstructed?(board.board[0][1], [0, 2])
-# board.board[2][2] = Pawn.new(:black, [2, 2])
-# board.display_board
-# p board.pawn_possible_captures(board.board[3][1])
+def trash
+
+  # def path_obstructed?(piece, destination) # Possibly going to be redundant
+  #   friendly_piece_locations = piece.color == :white ? get_white_positions : get_black_positions
+  #   friendly_piece_locations.include?(destination)
+
+  # end
+
+  # def pawn_possible_captures(pawn) # Possibly redundant
+  #   x = pawn.location[0]
+  #   y = pawn.location[1]
+  #   possible_captures = []
+  #   case pawn.color
+  #   when :white
+  #     possible_captures << [x + 1, y + 1] unless @board[x + 1][y + 1].nil? || @board[x + 1][y + 1].color == :white
+  #     possible_captures << [x - 1, y + 1] unless @board[x - 1][y + 1].nil? || @board[x - 1][y + 1].color == :white
+  #   when :black
+  #     possible_captures << [x + 1, y - 1] unless @board[x + 1][y - 1].nil? || @board[x + 1][y - 1].color == :black
+  #     possible_captures << [x - 1, y - 1] unless @board[x - 1][y - 1].nil? || @board[x - 1][y - 1].color == :black
+  #   end
+  #   possible_captures
+  # end
+
+
+  # def get_white_positions #Possibly redundant
+  #   white_positions = []
+
+  #   8.times do |x|
+  #     8.times do |y|
+  #       white_positions << board[x][y].location unless board[x][y].nil? || board[x][y].color == :black
+  #     end
+  #   end
+  #   white_positions
+  # end
+
+  # def get_black_positions #Possibly redundant
+  #   black_positions = []
+
+  #   8.times do |x|
+  #     8.times do |y|
+  #       black_positions << board[x][y].location unless board[x][y].nil? || board[x][y].color == :white
+  #     end
+  #   end
+  #   black_positions
+  # end
+end

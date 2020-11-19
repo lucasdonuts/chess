@@ -1,7 +1,8 @@
 require_relative 'piece.rb'
 
 class Bishop < Piece
-  attr_reader :symbol, :location, :color
+  attr_reader :symbol, :color
+  attr_accessor :location
 
   def initialize(color, location)
     @location = location

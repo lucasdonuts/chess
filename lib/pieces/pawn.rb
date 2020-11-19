@@ -1,6 +1,6 @@
 class Pawn
-  attr_reader :symbol, :location, :color
-  attr_accessor :first_move
+  attr_reader :color
+  attr_accessor :first_move, :location, :symbol
 
   def initialize(color, location)
     @location = location
@@ -41,7 +41,7 @@ class Pawn
         moves << [@location[0], @location[1] + 1]
       end
     when :black
-      if !board.board[@location[0], @location[1] - 1].nil?
+      if !board.board[@location[0]][@location[1] - 1].nil?
         return moves
       elsif @first_move
         moves << [@location[0], @location[1] - 1]

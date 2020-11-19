@@ -1,0 +1,42 @@
+Implement en passant DONE (Not fully tested)
+
+Implement get move functions DO THIS NEXT FOR ALL PIECES
+  pawn DONE
+  knight DONE
+  queen
+  king
+  rook
+  bishop
+
+Decide if get_moves needs to be tested in board_spec or not
+Probably don't need general piece superclass
+Add function to check if piece has no moves (no_moves?)
+Add menu functionality to input validation
+  Help
+  Quit
+  Save
+  
+Refactor board tests
+  current_players_piece? doesn't need to create player instances or create a variable for piece DONE
+  Redundant functions and tests?
+    get_white_positions DONE
+    get_black_positions DONE
+    path_obstructed? DONE
+  Properly place and remove new board instances
+
+Right now:
+  Starting game loop
+  Ask for/validate chosen destination DONE
+  Need to finish board's validate move function
+    Check if piece has any moves
+    Finish all pieces king_in_check? functions
+      pawn
+      rook
+      knight
+      bishop
+      queen
+      king
+  Working on board's move_piece function DONE (Not tested for all pieces)
+    Put piece at new location
+    Set old location to nil
+  

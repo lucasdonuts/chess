@@ -1,3 +1,5 @@
+# Most likely trash
+
 class Piece
   attr_reader :color
   
