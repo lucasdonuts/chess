@@ -1,7 +1,9 @@
 RIGHT NOW: Write tests for Bishop down_moves function
            Write down_moves function
 
-Implement en passant DONE (Not fully tested)
+Implement en passant
+  Implemented on board, but piece still doesn't recognize legality
+Implement promotions
 
 Implement get move functions DO THIS NEXT FOR ALL PIECES
   pawn DONE

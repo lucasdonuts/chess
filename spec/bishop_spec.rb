@@ -26,10 +26,8 @@ describe Bishop do
   describe "#up_moves" do
     board = Board.new
     board.board[5][3] = Bishop.new(:white, [5, 3])
-    board.board[2][3] = Bishop.new(:black, [2, 3])
     white_bishop = board.board[5][3]
-    black_bishop = board.board[2][3]
-    puts "Remember to remove board dependencies if necessary"
+    puts "Remember to remove board dependencies if possible"
 
     it "should return no moves when blocked in by friendly pieces" do
       expect(board.board[2][0].up_moves(board)).to eq([])
@@ -53,6 +51,38 @@ describe Bishop do
 
     it "should not return moves that are out of bounds" do
       actual = white_bishop.up_moves(board).any? { |move| move.any? {|i| i < 0 || i > 7 } }
+      expect(actual).to be false
+    end
+  end
+
+  describe "#down_moves" do
+    board = Board.new
+    board.board[2][4] = Bishop.new(:black, [2, 4])
+    black_bishop = board.board[2][4]
+    puts "Remember to remove board dependencies if possible"
+
+    it "should return no moves when blocked in by friendly pieces" do
+      expect(board.board[2][7].down_moves(board)).to eq([])
+    end
+
+    it "should include both left and right diagonal moves" do
+      expect(black_bishop.down_moves(board)).to include([1, 3], [3, 3])
+    end
+
+    it "should continue adding to one path even after another has ended" do
+      expect(black_bishop.down_moves(board)).to include([5, 1])
+    end
+
+    it "should include enemy locations on it's path" do
+      expect(black_bishop.down_moves(board)).to include([5, 1])
+    end
+
+    it "should stop adding moves when reaching a non-empty square" do
+      expect(black_bishop.down_moves(board)).not_to include([6, 0])
+    end
+
+    it "should not return moves that are out of bounds" do
+      actual = black_bishop.down_moves(board).any? { |move| move.any? {|i| i < 0 || i > 7 } }
       expect(actual).to be false
     end
   end
