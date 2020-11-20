@@ -22,12 +22,12 @@ class Rook < Piece
     x = @location[0]
     up_moves = []
 
-    (@location[1] + 1).upto(7) do |i|
-      if !board.board[x][i].nil?
-        board.board[x][i].color == @color ? break : up_moves << [x, i]
+    (@location[1] + 1).upto(7) do |y|
+      if !board.board[x][y].nil?
+        board.board[x][y].color == @color ? break : up_moves << [x, y]
         break
       else
-        up_moves << [x, i]
+        up_moves << [x, y]
       end
     end
     up_moves

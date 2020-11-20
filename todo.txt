@@ -1,3 +1,6 @@
+RIGHT NOW: Write tests for Bishop down_moves function
+           Write down_moves function
+
 Implement en passant DONE (Not fully tested)
 
 Implement get move functions DO THIS NEXT FOR ALL PIECES
@@ -7,6 +10,7 @@ Implement get move functions DO THIS NEXT FOR ALL PIECES
   king
   rook DONE (Except for castling, most likely will be in king class)
   bishop
+  update all class move functions to check if move puts king_in_check
 
 Decide if get_moves needs to be tested in board_spec or not
 Probably don't need general piece superclass

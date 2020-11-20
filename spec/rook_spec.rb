@@ -74,7 +74,6 @@ describe Rook do
     board = Board.new
     board.board[5][3] = Rook.new(:white, [5, 3])
     board.board[1][3] = Rook.new(:black, [1, 3])
-    board.display_board
     it "should return no moves when blocked in by friendly pieces" do
       expect(board.board[7][0].left_moves(board)).to eq([])
     end
@@ -98,7 +97,6 @@ describe Rook do
     board = Board.new
     board.board[5][3] = Rook.new(:white, [5, 3])
     board.board[1][3] = Rook.new(:black, [1, 3])
-    board.display_board
     it "should return no moves when blocked in by friendly pieces" do
       expect(board.board[0][7].right_moves(board)).to eq([])
     end
@@ -108,7 +106,8 @@ describe Rook do
     end
 
     it "should stop adding moves when reaching a non-empty square" do
-      expect(board.board[1][3].right_moves(board)).not_to include([6, 3], [7, 3])
+      expect(board.board[1][3].right_moves(board)).not_to include([6, 3])
+      expect(board.board[1][3].right_moves(board)).not_to include([7, 3])
     end
 
     it "should not return moves that are out of bounds" do

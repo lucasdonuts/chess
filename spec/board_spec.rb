@@ -277,9 +277,7 @@ describe Board do
         it "should remove captured piece from board after en passant capture" do
           board.board[0][4] = Pawn.new(:black, [0, 4])
           board.board[1][4] = Pawn.new(:white, [1, 4])
-          board.display_board
           board.passant_check(board.board[1][4], [0, 5])
-          board.display_board
           expect(board.board[0][4]).to be nil
         end
       end
