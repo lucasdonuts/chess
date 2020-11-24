@@ -17,11 +17,11 @@ class Pawn
     captures = []
     case @color
     when :white
-      right = board.board[@location[0] + 1][@location[1] + 1]
-      left = board.board[@location[0] - 1][@location[1] + 1]
+      right = board.board[@location[0] + 1][@location[1] + 1] unless @location[0] + 1 > 7
+      left = board.board[@location[0] - 1][@location[1] + 1] unless @location[0] - 1 < 0
     when :black
-      right = board.board[@location[0] + 1][@location[1] - 1]
-      left = board.board[@location[0] - 1][@location[1] - 1]
+      right = board.board[@location[0] + 1][@location[1] - 1] unless @location[0] + 1 > 7
+      left = board.board[@location[0] - 1][@location[1] - 1] unless @location[0] - 1 < 0
     end
     captures << right.location unless right.nil?
     captures << left.location unless left.nil?

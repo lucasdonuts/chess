@@ -7,6 +7,7 @@ require_relative 'pieces/rook.rb'
 require_relative 'pieces/bishop.rb'
 require_relative 'pieces/knight.rb'
 require_relative 'pieces/queen.rb'
+require 'pry'
 
 class Game
   attr_reader :player1, :player2, :current_player
@@ -89,10 +90,6 @@ class Game
     translation = [x, y]
   end
 
-  def check_input(input)
-
-  end
-
   def switch_current_player
     if @current_player == @player1
       @current_player = @player2
@@ -108,6 +105,4 @@ class Game
   def checkmate_message
     "Checkmate!"
   end
-
-  
 end

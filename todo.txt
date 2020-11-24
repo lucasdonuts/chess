@@ -1,26 +1,50 @@
-RIGHT NOW: Write tests for Bishop down_moves function
-           Write down_moves function
+RIGHT NOW: Letter and number coordinates in display_board function
+
+Add letter and number coordinates to display_board function
 
 Implement en passant
   Implemented on board, but piece still doesn't recognize legality
+
+Add king in check function
+  Rules: The king and the corresponding rook haven't moved yet
+         All spaces between the king and the rook must be empty.
+         The king cannot be put in check.
+         The squares that the king passes over must not be under attack.
+
 Implement promotions
 
 Implement get move functions DO THIS NEXT FOR ALL PIECES
+  Possibly create check_square function to be used with case statement
+    case check_square
+    when capture
+    when friendly
+    when empty
   pawn DONE
   knight DONE
-  queen
+  queen DONE
   king
   rook DONE (Except for castling, most likely will be in king class)
-  bishop
+  bishop DONE
   update all class move functions to check if move puts king_in_check
 
 Decide if get_moves needs to be tested in board_spec or not
+
 Probably don't need general piece superclass
+
 Add function to check if piece has no moves (no_moves?)
+
 Add menu functionality to input validation
   Help
   Quit
   Save
+
+Refactor Piece classes
+  Maybe combine up/down move and left/right move functions
+    Rook DONE
+    Queen
+
+Refactor board class
+  Refactor validation methods to include check_square function
 
 Refactor board tests
   current_players_piece? doesn't need to create player instances or create a variable for piece DONE
@@ -29,6 +53,33 @@ Refactor board tests
     get_black_positions DONE
     path_obstructed? DONE
   Properly place and remove new board instances
+
+Refactor piece tests
+  Make rook tests more closely resemble bishop with pieces created at 5, 3 and 2, 4
+  Possibly pawn tests as well, but probably not needed
+  See if it's possible to remove board dependencies with mocks and/or doubles
+
+REMOVE ALL TRASH CODE FROM EVERY FILE
+  bishop.rb
+  king.rb
+  knight.rb
+  pawn.rb
+  piece.rb
+  queen.rb
+  rook.rb
+  board.rb
+  game.rb
+  player.rb
+
+  bishop_spec.rb
+  board_spec.rb
+  game_spec.rb
+  king_spec.rb
+  knight_spec.rb
+  pawn_spec.rb
+  piece_spec.rb
+  queen_spec.rb
+  rook_spec.rb
 
 Right now:
   Starting game loop

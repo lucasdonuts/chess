@@ -27,7 +27,6 @@ describe Bishop do
     board = Board.new
     board.board[5][3] = Bishop.new(:white, [5, 3])
     white_bishop = board.board[5][3]
-    puts "Remember to remove board dependencies if possible"
 
     it "should return no moves when blocked in by friendly pieces" do
       expect(board.board[2][0].up_moves(board)).to eq([])
@@ -59,7 +58,6 @@ describe Bishop do
     board = Board.new
     board.board[2][4] = Bishop.new(:black, [2, 4])
     black_bishop = board.board[2][4]
-    puts "Remember to remove board dependencies if possible"
 
     it "should return no moves when blocked in by friendly pieces" do
       expect(board.board[2][7].down_moves(board)).to eq([])
