@@ -31,14 +31,27 @@ class Board
   end
 
   def display_board
-    puts "\n\n\n                 -   -   -   -   -   -   -   - "
+    column = { 0 => 'a',
+               1 => 'b',
+               2 => 'c',
+               3 => 'd',
+               4 => 'e',
+               5 => 'f',
+               6 => 'g',
+               7 => 'h'
+
+    }
+    print "\n\n\n                 a   b   c   d   e   f   g   h \n"
+    puts "                 -   -   -   -   -   -   -   - "
     7.downto(0) do |x|
-      print "               | "
+      print "             #{x} | "
       0.upto(7) do |y|
         print board[y][x].nil? ? "  | " : "#{board[y][x].symbol} | "
       end
+      print "#{x}"
       print "\n                 -   -   -   -   -   -   -   - \n"
     end
+    print "                 a   b   c   d   e   f   g   h \n"
     puts "\n\n\n"
   end
 
