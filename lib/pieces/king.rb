@@ -33,5 +33,6 @@ class King < Piece
     
     castling_moves << [x - 2, y] if @board.can_castle_left?(self)
     castling_moves << [x + 2, y] if @board.can_castle_right?(self)
+    castling_moves
   end
 end

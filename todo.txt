@@ -1,4 +1,6 @@
-RIGHT NOW : Add board to piece initialization
+RIGHT NOW: fixed stack level bug, still need to implement king_in_check
+           Game not recognizing checkmate, should be an easy solution
+           
 
 Getting enemy moves is causing stack overload after
             a few moves have been made
@@ -27,6 +29,8 @@ Testing game
             
 
 Add letter and number coordinates to display_board function DONE
+
+Move check_game_state to after display_board on game class
 
 Implement en passant DONE
   Implemented on board, but piece still doesn't recognize legality DONE

@@ -24,6 +24,7 @@ class Game
     welcome_message
     loop do
       @board.display_board
+      check_game_state
       selected_piece = get_piece_selection
       destination = get_destination(selected_piece)
       @board.move_piece(selected_piece, destination)

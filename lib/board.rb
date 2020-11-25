@@ -33,8 +33,8 @@ class Board
       check_square([3, 0], :white) == 'empty' &&
       check_square([2, 0], :white) == 'empty' &&
       check_square([1, 0], :white) == 'empty' &&
-      !get_enemy_moves(:white).include?([3, 0]) &&
-      !get_enemy_moves(:white).include?([2, 0])
+      !square_under_attack?([3, 0], :white) &&
+      !square_under_attack?([2, 0], :white)
 
     when :black
       return false unless @black_left_castle
@@ -42,8 +42,8 @@ class Board
       check_square([3, 7], :black) == 'empty' &&
       check_square([2, 7], :black) == 'empty' &&
       check_square([1, 7], :black) == 'empty' &&
-      !get_enemy_moves(:black).include?([3, 7]) &&
-      !get_enemy_moves(:black).include?([2, 7])
+      !square_under_attack?([3, 7], :black) &&
+      !square_under_attack?([2, 7], :black)
     end
   end
 
@@ -54,15 +54,15 @@ class Board
 
       check_square([5, 0], :white) == 'empty' &&
         check_square([6, 0], :white) == 'empty' &&
-        !get_enemy_moves(:white).include?([5, 0]) &&
-        !get_enemy_moves(:white).include?([6, 0])
+        !square_under_attack?([5, 0], :white) &&
+        !square_under_attack?([6, 0], :white)
     when :black
       return false unless @black_right_castle
 
       check_square([5, 7], :black) == 'empty' &&
         check_square([6, 7], :black) == 'empty' &&
-        !get_enemy_moves(:black).include?([5, 7]) &&
-        !get_enemy_moves(:black).include?([6, 7])
+        !square_under_attack?([5, 7], :black) &&
+        !square_under_attack?([6, 7], :black)
     end
   end
 
@@ -111,7 +111,7 @@ class Board
   end
 
   def check_mate?(player_color)
-    player_color == :white ? @white_king.location.nil? : @black_king.location.nil?
+    player_color == :white ? @white_king.nil? : @black_king.nil?
   end
 
   def check_square(coords, player_color)
@@ -151,12 +151,23 @@ class Board
     piece.location = destination
   end
 
+  # def get_enemy_list(color)
+  #   enemy_positions = []
+
+  #   8.times do |x|
+  #     8.times do |y|
+  #       enemy_positions << board[x][y] unless board[x][y].nil? || board[x][y].color == color
+  #     end
+  #   end
+  #   enemy_positions
+  # end
+
   def get_enemy_list(color)
     enemy_positions = []
 
     8.times do |x|
       8.times do |y|
-        enemy_positions << board[x][y] unless board[x][y].nil? || board[x][y].color == color
+        enemy_positions << [x, y] unless board[x][y].nil? || board[x][y].color == color
       end
     end
     enemy_positions
@@ -177,7 +188,7 @@ class Board
   def king_in_check?(color)
     king = color == :white ? @white_king : @black_king
     get_enemy_list(color).each do |enemy|
-      return true if enemy.get_moves.include?(king.location)
+      return true if @board[enemy[0]][enemy[1]].get_moves.include?(king.location)
     end
     false
   end
@@ -365,9 +376,16 @@ class Board
     rook.location = destination
   end
 
+  # def square_under_attack?(coords, color)
+  #   get_enemy_list(color).each do |enemy|
+  #     return true if enemy.get_moves.include?(coords)
+  #   end
+  #   false
+  # end
+
   def square_under_attack?(coords, color)
     get_enemy_list(color).each do |enemy|
-      return true if enemy.get_moves.include?(coords)
+      return true if @board[enemy[0]][enemy[1]].get_moves.include?(coords)
     end
     false
   end
