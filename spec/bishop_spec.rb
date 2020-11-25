@@ -3,8 +3,9 @@ require './lib/board.rb'
 
 describe Bishop do
   describe "#initialize" do
-    white_bishop = Bishop.new(:white, [2, 0])
-    black_bishop = Bishop.new(:black, [2, 7])
+    board = Board.new
+    white_bishop = Bishop.new(:white, [2, 0], board)
+    black_bishop = Bishop.new(:black, [2, 7], board)
 
     it "should create a bishop piece with the color white" do
       expect(white_bishop.color).to eq(:white)
@@ -25,62 +26,62 @@ describe Bishop do
 
   describe "#up_moves" do
     board = Board.new
-    board.board[5][3] = Bishop.new(:white, [5, 3])
+    board.board[5][3] = Bishop.new(:white, [5, 3], board)
     white_bishop = board.board[5][3]
 
     it "should return no moves when blocked in by friendly pieces" do
-      expect(board.board[2][0].up_moves(board)).to eq([])
+      expect(board.board[2][0].up_moves).to eq([])
     end
 
     it "should include both left and right diagonal moves" do
-      expect(white_bishop.up_moves(board)).to include([4, 4], [6, 4])
+      expect(white_bishop.up_moves).to include([4, 4], [6, 4])
     end
 
     it "should continue adding to one path even after another has ended" do
-      expect(white_bishop.up_moves(board)).to include([2, 6])
+      expect(white_bishop.up_moves).to include([2, 6])
     end
 
     it "should include enemy locations on it's path" do
-      expect(white_bishop.up_moves(board)).to include([2, 6])
+      expect(white_bishop.up_moves).to include([2, 6])
     end
 
     it "should stop adding moves when reaching a non-empty square" do
-      expect(white_bishop.up_moves(board)).not_to include([1, 7])
+      expect(white_bishop.up_moves).not_to include([1, 7])
     end
 
     it "should not return moves that are out of bounds" do
-      actual = white_bishop.up_moves(board).any? { |move| move.any? {|i| i < 0 || i > 7 } }
+      actual = white_bishop.up_moves.any? { |move| move.any? {|i| i < 0 || i > 7 } }
       expect(actual).to be false
     end
   end
 
   describe "#down_moves" do
     board = Board.new
-    board.board[2][4] = Bishop.new(:black, [2, 4])
+    board.board[2][4] = Bishop.new(:black, [2, 4], board)
     black_bishop = board.board[2][4]
 
     it "should return no moves when blocked in by friendly pieces" do
-      expect(board.board[2][7].down_moves(board)).to eq([])
+      expect(board.board[2][7].down_moves).to eq([])
     end
 
     it "should include both left and right diagonal moves" do
-      expect(black_bishop.down_moves(board)).to include([1, 3], [3, 3])
+      expect(black_bishop.down_moves).to include([1, 3], [3, 3])
     end
 
     it "should continue adding to one path even after another has ended" do
-      expect(black_bishop.down_moves(board)).to include([5, 1])
+      expect(black_bishop.down_moves).to include([5, 1])
     end
 
     it "should include enemy locations on it's path" do
-      expect(black_bishop.down_moves(board)).to include([5, 1])
+      expect(black_bishop.down_moves).to include([5, 1])
     end
 
     it "should stop adding moves when reaching a non-empty square" do
-      expect(black_bishop.down_moves(board)).not_to include([6, 0])
+      expect(black_bishop.down_moves).not_to include([6, 0])
     end
 
     it "should not return moves that are out of bounds" do
-      actual = black_bishop.down_moves(board).any? { |move| move.any? {|i| i < 0 || i > 7 } }
+      actual = black_bishop.down_moves.any? { |move| move.any? {|i| i < 0 || i > 7 } }
       expect(actual).to be false
     end
   end

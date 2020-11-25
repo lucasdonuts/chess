@@ -1,4 +1,6 @@
-RIGHT NOW : Getting enemy moves is causing stack overload after
+RIGHT NOW : Add board to piece initialization
+
+Getting enemy moves is causing stack overload after
             a few moves have been made
 
             Currently have a fresh start on board class

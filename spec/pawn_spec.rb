@@ -1,8 +1,9 @@
 require './lib/pieces/pawn.rb'
 
 describe Pawn do
-  white_pawn = Pawn.new(:white, [0, 1])
-  black_pawn = Pawn.new(:black, [0, 6])
+  board = Board.new
+  white_pawn = Pawn.new(:white, [0, 1], board)
+  black_pawn = Pawn.new(:black, [0, 6], board)
   describe "#initialize" do
 
     it "should create a pawn piece with the color white" do
@@ -25,30 +26,30 @@ describe Pawn do
   describe "#get_moves" do
     board = Board.new
     it "should return an array" do
-      expect(white_pawn.get_moves(board)).to be_a(Array)
+      expect(white_pawn.get_moves).to be_a(Array)
     end
 
     it "should return 2 possible moves on first move with clear path and no captures" do
-      expect(white_pawn.get_moves(board).size).to eq(2)
+      expect(white_pawn.get_moves.size).to eq(2)
     end
 
     it "should return only one possible move when not on first move with clear path and no captures" do
       white_pawn.first_move = false
-      expect(white_pawn.get_moves(board).size).to eq(1)
+      expect(white_pawn.get_moves.size).to eq(1)
     end
 
     it "should return no moves when enemy is right in front with no capture possibilites" do
       pawn = board.board[3][1]
-      board.board[3][2] = Pawn.new(:black, [3, 2])
-      expect(pawn.get_moves(board).size).to eq(0)
+      board.board[3][2] = Pawn.new(:black, [3, 2], board)
+      expect(pawn.get_moves.size).to eq(0)
     end
 
     it "should return capture moves even when a piece is in front of it" do
       pawn = board.board[3][1]
-      board.board[3][2] = Pawn.new(:black, [3, 2])
-      board.board[2][2] = Pawn.new(:black, [2, 2])
-      board.board[4][2] = Pawn.new(:black, [4, 2])
-      expect(pawn.get_moves(board).size).to eq(2)
+      board.board[3][2] = Pawn.new(:black, [3, 2], board)
+      board.board[2][2] = Pawn.new(:black, [2, 2], board)
+      board.board[4][2] = Pawn.new(:black, [4, 2], board)
+      expect(pawn.get_moves.size).to eq(2)
     end
   end
 end

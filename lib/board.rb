@@ -40,26 +40,26 @@ class Board
 
   def place_starting_pieces
     (0..7).each do |x|
-      @board[x][1] = Pawn.new(:white, [x, 1])
-      @board[x][6] = Pawn.new(:black, [x, 6])
+      @board[x][1] = Pawn.new(:white, [x, 1], self)
+      @board[x][6] = Pawn.new(:black, [x, 6], self)
     end
-    @board[0][0] = Rook.new(:white, [0, 0])
-    @board[7][0] = Rook.new(:white, [7, 0])
-    @board[1][0] = Knight.new(:white, [1, 0])
-    @board[6][0] = Knight.new(:white, [6, 0])
-    @board[2][0] = Bishop.new(:white, [2, 0])
-    @board[5][0] = Bishop.new(:white, [5, 0])
-    @board[3][0] = Queen.new(:white, [3, 0])
-    @board[4][0] = King.new(:white, [4, 0])
+    @board[0][0] = Rook.new(:white, [0, 0], self)
+    @board[7][0] = Rook.new(:white, [7, 0], self)
+    @board[1][0] = Knight.new(:white, [1, 0], self)
+    @board[6][0] = Knight.new(:white, [6, 0], self)
+    @board[2][0] = Bishop.new(:white, [2, 0], self)
+    @board[5][0] = Bishop.new(:white, [5, 0], self)
+    @board[3][0] = Queen.new(:white, [3, 0], self)
+    @board[4][0] = King.new(:white, [4, 0], self)
 
-    @board[0][7] = Rook.new(:black, [0, 7])
-    @board[7][7] = Rook.new(:black, [7, 7])
-    @board[1][7] = Knight.new(:black, [1, 7])
-    @board[6][7] = Knight.new(:black, [6, 7])
-    @board[2][7] = Bishop.new(:black, [2, 7])
-    @board[5][7] = Bishop.new(:black, [5, 7])
-    @board[3][7] = Queen.new(:black, [3, 7])
-    @board[4][7] = King.new(:black, [4, 7])
+    @board[0][7] = Rook.new(:black, [0, 7], self)
+    @board[7][7] = Rook.new(:black, [7, 7], self)
+    @board[1][7] = Knight.new(:black, [1, 7], self)
+    @board[6][7] = Knight.new(:black, [6, 7], self)
+    @board[2][7] = Bishop.new(:black, [2, 7], self)
+    @board[5][7] = Bishop.new(:black, [5, 7], self)
+    @board[3][7] = Queen.new(:black, [3, 7], self)
+    @board[4][7] = King.new(:black, [4, 7], self)
 
     @left_white_rook = @board[0][0]
     @right_white_rook = @board[7][0]
@@ -83,7 +83,7 @@ class Board
   def king_in_check?(color)
     king = color == :white ? @white_king : @black_king
     get_enemy_list(color).each do |enemy|
-      return true if enemy.get_moves(self).include?(king.location)
+      return true if enemy.get_moves.include?(king.location)
     end
     false
     # get_enemy_moves(color).include?(king.location)
@@ -91,20 +91,20 @@ class Board
 
   def square_under_attack?(coords, color)
     get_enemy_list(color).each do |enemy|
-      return true if enemy.get_moves(self).include?(coords)
+      return true if enemy.get_moves.include?(coords)
     end
     false
   end
 
-  def test_causes_check?(piece, destination)
-    test_board = TestBoard.new(@board)
-    test_board.white_king = @white_king.dup
-    test_board.black_king = @black_king.dup
-    location = piece.location
-    target_piece = test_board.board[location[0]][location[1]].dup
-    test_board.move_piece(target_piece, destination)
-    test_board.king_in_check?(piece.color)
-  end
+  # def test_causes_check?(piece, destination)
+  #   test_board = TestBoard.new(@board)
+  #   test_board.white_king = @white_king.dup
+  #   test_board.black_king = @black_king.dup
+  #   location = piece.location
+  #   target_piece = test_board.board[location[0]][location[1]].dup
+  #   test_board.move_piece(target_piece, destination)
+  #   test_board.king_in_check?(piece.color)
+  # end
 
   def causes_check?(piece, destination) # Trash trash trash wtf
     check = false
@@ -138,7 +138,7 @@ class Board
 
   def get_enemy_moves(color)
     enemy_moves = []
-    get_enemy_list(color).each { |enemy| enemy_moves += enemy.get_moves(self) }
+    get_enemy_list(color).each { |enemy| enemy_moves += enemy.get_moves }
     enemy_moves
   end
 
@@ -569,8 +569,8 @@ class Board
   # end
 
   def get_moves(piece)
-    moves = piece.get_moves(self)
-    moves.delete_if { |move| test_causes_check?(piece, move) }
+    moves = piece.get_moves
+    #moves.delete_if { |move| test_causes_check?(piece, move) }
     # moves.delete_if {|move| causes_check?(piece, move) }
   end
 
