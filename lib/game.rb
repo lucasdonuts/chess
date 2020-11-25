@@ -28,12 +28,48 @@ class Game
       destination = get_destination(selected_piece)
       @board.move_piece(selected_piece, destination)
       switch_current_player
+      check_game_state
+    end
+  end
+
+  def check_game_state
+    if @board.king_in_check?(@current_player.color)
+      puts check_message
+    elsif @board.check_mate?(@current_player.color)
+      puts checkmate_message
+      game_over
     end
   end
 
   def welcome_message
     puts "\nWelcome to chess! Player 1 will be white and Player 2 will be black." +
          " White goes first."
+  end
+
+  def reset_game
+    Game.new
+  end
+
+  def play_again?
+    puts "Would you like to play again? (y/n): "
+    input = gets.chomp.downcase
+    case input
+    when 'y'
+      return true
+    when 'n'
+      return false
+    else
+      puts "Invalid input."
+      play_again?
+    end
+  end
+
+  def game_over
+    if play_again?
+      reset_game
+    else
+      exit
+    end
   end
 
   def get_piece_selection
@@ -60,7 +96,7 @@ class Game
       destination = translate_input(destination)
       if @board.valid_destination?(piece, destination)
         return destination
-      else
+      else 
         puts "\nPiece is unable to make that move."
         get_destination(piece)
       end

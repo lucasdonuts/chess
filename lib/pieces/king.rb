@@ -29,16 +29,19 @@ class King < Piece
     moves << [x - 1, y + 1] unless board.check_square([x - 1, y + 1], @color) == 'friendly'
     moves << [x - 1, y - 1] unless board.check_square([x - 1, y - 1], @color) == 'friendly'
 
-    # moves << castling_moves(board)
+    moves += castling_moves(board)
 
     moves.reject! {|move| move.any? {|i| i < 0 || i > 7 }}
     moves
   end
 
-  # def castling_moves(board)
-  #   castling_moves = []
-  #   x = @location[0]
-  #   y = @location[1]
+  def castling_moves(board)
+    castling_moves = []
+    return [] if !board.can_castle_left?(self) and !board.can_castle_right?(self)
+    x = @location[0]
+    y = @location[1]
     
-  # end
+    castling_moves << [x - 2, y] if board.can_castle_left?(self)
+    castling_moves << [x + 2, y] if board.can_castle_right?(self)
+  end
 end

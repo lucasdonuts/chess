@@ -1,11 +1,12 @@
 require_relative 'piece.rb'
 
 class Rook < Piece
-  attr_reader :symbol, :color
+  attr_reader :symbol, :color, :side
   attr_accessor :location, :first_move
 
   def initialize(color, location)
     @location = location
+    @side = location[0] == 0 ? :left : :right
     @color = color
     @symbol = select_symbol
     @first_move = true
@@ -16,7 +17,7 @@ class Rook < Piece
   end
 
   def get_moves(board)
-    moves = vertical_moves(board) + left_moves(board) + right_moves(board)
+    moves = vertical_moves(board) + horizontal_moves(board)
   end
 
   def vertical_moves(board)
@@ -67,35 +68,35 @@ class Rook < Piece
     horizontal_moves
   end
 
-  def left_moves(board)
-    y = @location[1]
-    left_moves = []
+  # def left_moves(board)
+  #   y = @location[1]
+  #   left_moves = []
 
-    (@location[0] - 1).downto(0) do |i|
-      if !board.board[i][y].nil?
-        board.board[i][y].color == @color ? break : left_moves << [i, y]
-        break
-      else
-        left_moves << [i, y]
-      end
-    end
-    left_moves
-  end
+  #   (@location[0] - 1).downto(0) do |i|
+  #     if !board.board[i][y].nil?
+  #       board.board[i][y].color == @color ? break : left_moves << [i, y]
+  #       break
+  #     else
+  #       left_moves << [i, y]
+  #     end
+  #   end
+  #   left_moves
+  # end
 
-  def right_moves(board)
-    y = @location[1]
-    right_moves = []
+  # def right_moves(board)
+  #   y = @location[1]
+  #   right_moves = []
 
-    (@location[0] + 1).upto(7) do |i|
-      if !board.board[i][y].nil?
-        board.board[i][y].color == @color ? break : right_moves << [i, y]
-        break
-      else
-        right_moves << [i, y]
-      end
-    end
-    right_moves
-  end
+  #   (@location[0] + 1).upto(7) do |i|
+  #     if !board.board[i][y].nil?
+  #       board.board[i][y].color == @color ? break : right_moves << [i, y]
+  #       break
+  #     else
+  #       right_moves << [i, y]
+  #     end
+  #   end
+  #   right_moves
+  # end
 end
 
 def trash

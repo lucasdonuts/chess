@@ -1,11 +1,37 @@
-RIGHT NOW: Letter and number coordinates in display_board function
+RIGHT NOW : Getting enemy moves is causing stack overload after
+            a few moves have been made
 
-Add letter and number coordinates to display_board function
+            Currently have a fresh start on board class
+            - Keep get_move piece functions independent of board
+              and filter illegal moves in board class
+            - ASAP: Either find a way to duplicate board without
+              affecting original, or find a way to test if move
+              puts king in check without duplicating board
+            - Removing location attribute from piece classes may help
+            - Try to think of other attributes that may help if
+              applied to piece classes
+                - ID?
+          
 
-Implement en passant
-  Implemented on board, but piece still doesn't recognize legality
+Testing game
+            Still need to re-work causes_check?
+            Retroactively changes passant_pawn variable and probably other things
+            Find a way to alter copy without affecting original at all
+            Possibly rework
+              passant implementation
+              destination validation
 
-Add king in check function
+            moving check deletions to validation method FAIL
+            
+
+Add letter and number coordinates to display_board function DONE
+
+Implement en passant DONE
+  Implemented on board, but piece still doesn't recognize legality DONE
+
+Add king in check function DONE
+
+Add castling DONE (Not fully tested)
   Rules: The king and the corresponding rook haven't moved yet
          All spaces between the king and the rook must be empty.
          The king cannot be put in check.
@@ -97,3 +123,12 @@ Right now:
     Put piece at new location
     Set old location to nil
   
+
+Functions just added:
+  board.promotion? DONE
+  board.promotion_check DONE
+  board.promote_piece DONE
+  board.check_mate? DONE
+  game.game_over DONE
+  game.play_again? DONE
+  game.reset_game DONE

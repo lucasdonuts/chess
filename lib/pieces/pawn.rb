@@ -53,5 +53,3 @@ class Pawn
     moves
   end
 end
-
-pawn = Pawn.new(:white, [3, 1])

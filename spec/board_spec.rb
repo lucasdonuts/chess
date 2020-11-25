@@ -94,50 +94,31 @@ describe Board do
     end
   end
 
+  describe "#promotion" do
+    it "should return true when a white pawn has reached the top row" do
+      board = Board.new
+      board.board[0][7] = Pawn.new(:white, [0, 7])
+      expect(board.promotion?(board.board[0][7])).to be true
+    end
+
+    it "should return true when a black pawn has reached the bottom row" do
+      board = Board.new
+      board.board[0][0] = Pawn.new(:black, [0, 0])
+      expect(board.promotion?(board.board[0][0])).to be true
+    end
+
+    it "should return false when white pawn is not in top row" do
+      board = Board.new
+      expect(board.promotion?(board.board[0][1])).to be false
+    end
+
+    it "should return false when there are no black pawns on bottom row" do
+      board = Board.new
+      expect(board.promotion?(board.board[0][6])).to be false
+    end
+  end
+
   context "validating moves" do
-    describe "#in_bounds?" do # Redundant, checked in game class
-      it "should return false when x coordinate is out of bounds" do
-        expect(board.in_bounds?([9, 1])).to be false
-      end
-
-      it "should return false when y coordinate is out of bounds" do
-        expect(board.in_bounds?([1, 9])).to be false
-      end
-
-      it "should return true when both x and y are in bounds" do
-        expect(board.in_bounds?([2, 2])).to be true
-      end
-    end
-
-    describe "#square_empty?" do # Most likely redundant after creating check_square function
-      it "should return true when there is no piece at destination" do
-        expect(board.square_empty?([3, 3])).to be true
-      end
-
-      it "should return false when destination is occupied" do
-        expect(board.square_empty?([0, 0])).to be false
-      end
-    end
-
-    describe "#current_players_piece?" do # Most likely redundant after creating check_square function
-      # Remove player instances and piece variables
-      it "should return true when player 1 selects a white piece" do
-        expect(board.current_players_piece?(board.board[0][1], :white)).to eq true
-      end
-
-      it "should return false when player 2 selects a white piece" do
-        expect(board.current_players_piece?(board.board[0][1], :black)).to eq false
-      end
-
-      it "should return true when player 2 selects a black piece" do
-        expect(board.current_players_piece?(board.board[0][6], :black)).to eq true
-      end
-
-      it "should return false when player 1 selects a black piece" do
-        expect(board.current_players_piece?(board.board[0][6], :white)).to eq false
-      end
-    end
-
     describe "#valid_selection?" do # Maybe redundant after check_square function
       it "should return true when player selects their own piece" do
         expect(board.valid_selection?([1, 0], :white)).to be true
@@ -156,6 +137,7 @@ describe Board do
       end
 
       it "should return false when selecting a piece with no legal moves" do
+        skip
         board.board[7][3] = Bishop.new(:black, [7, 3])
         expect(board.valid_selection?([5, 1], :white)).to be false
       end
@@ -163,8 +145,9 @@ describe Board do
 
     describe "#valid_destination?" do
       it "should return false when move puts player's king in check" do
+        skip
         board = Board.new
-        board.board[6][2] = Bishop.new(:black, [6, 2])
+        board.board[7][3] = Bishop.new(:black, [7, 3])
         expect(board.valid_destination?(board.board[5][1], [5, 2])).to be false
       end
 
@@ -192,53 +175,198 @@ describe Board do
     end
 
     describe "#can_castle_left?" do
-      white_king = board.board[4][0]
-      it "should return true when squares between corresponding rook and king are empty and neither have moved" do
-        board.board[3][0] = nil
-        board.board[2][0] = nil
-        board.board[1][0] = nil
-        expect(board.can_castle_left?(white_king)).to be true
+      context "white side" do
+        it "should return false when any squares between are occupied" do
+          board = Board.new
+          white_king = board.board[4][0]
+          expect(board.can_castle_left?(white_king)).to be false
+        end
+
+        it "should return true when squares between corresponding rook and king are empty and neither have moved" do
+          board = Board.new
+          white_king = board.board[4][0]
+          board.board[3][0] = nil
+          board.board[2][0] = nil
+          board.board[1][0] = nil
+          expect(board.can_castle_left?(white_king)).to be true
+        end
+
+        it "should return false when any squares passed over by the king are under attack" do
+          board = Board.new
+          white_king = board.board[4][0]
+          board.board[3][0] = nil
+          board.board[2][0] = nil
+          board.board[1][0] = nil
+          board.board[3][1] = Rook.new(:black, [3, 1])
+          expect(board.can_castle_left?(white_king)).to be false
+          board.board[2][1] = Rook.new(:black, [2, 1])
+          board.board[3][1] = nil
+          expect(board.can_castle_left?(white_king)).to be false
+        end
+
+        it "should return false when king has moved" do
+          board = Board.new
+          board.board[3][0] = nil
+          board.board[2][0] = nil
+          board.board[1][0] = nil
+          white_king = board.board[4][0]
+          white_king.first_move = false
+          expect(board.can_castle_left?(white_king)).to be false
+        end
+
+        it "should return false when rook has moved" do
+          board = Board.new
+          board.board[3][0] = nil
+          board.board[2][0] = nil
+          board.board[1][0] = nil
+          white_king = board.board[4][0]
+          board.left_white_rook.first_move = false
+          expect(board.can_castle_left?(white_king)).to be false
+        end
       end
 
-      it "should return false when king has moved" do
-        white_king.first_move = false
-        expect(board.can_castle_left?(white_king)).to be false
-      end
+      context "black side" do
+        it "should return false when any squares between are occupied" do
+          board = Board.new
+          black_king = board.board[4][7]
+          expect(board.can_castle_left?(black_king)).to be false
+        end
 
-      it "should return false when rook has moved" do
-        white_king.first_move = true
-        board.left_white_rook.first_move = false
-        expect(board.can_castle_left?(white_king)).to be false
-      end
+        it "should return true when squares between corresponding rook and king are empty and neither have moved" do
+          board = Board.new
+          black_king = board.board[4][7]
+          board.board[3][7] = nil
+          board.board[2][7] = nil
+          board.board[1][7] = nil
+          expect(board.can_castle_left?(black_king)).to be true
+        end
 
-      it "should return false when any squares between are occupied" do
-        board.board[3][0] = Queen.new(:white, [3, 0])
-        expect(board.can_castle_left?(white_king)).to be false
+        it "should return false when any squares passed over by the king are under attack" do
+          board = Board.new
+          black_king = board.board[4][7]
+          board.board[3][7] = nil
+          board.board[2][7] = nil
+          board.board[1][7] = nil
+          board.board[3][6] = Rook.new(:white, [3, 6])
+          expect(board.can_castle_left?(black_king)).to be false
+          board.board[2][6] = Rook.new(:white, [2, 6])
+          board.board[3][1] = nil
+          expect(board.can_castle_left?(black_king)).to be false
+        end
+
+        it "should return false when king has moved" do
+          board = Board.new
+          board.board[3][7] = nil
+          board.board[2][7] = nil
+          board.board[1][7] = nil
+          black_king = board.board[4][7]
+          black_king.first_move = false
+          expect(board.can_castle_left?(black_king)).to be false
+        end
+
+        it "should return false when rook has moved" do
+          board = Board.new
+          board.board[3][7] = nil
+          board.board[2][7] = nil
+          board.board[1][7] = nil
+          black_king = board.board[4][7]
+          board.left_black_rook.first_move = false
+          expect(board.can_castle_left?(black_king)).to be false
+        end
       end
     end
 
     describe "#can_castle_right?" do
-      black_king = board.board[4][7]
-      it "should return true when squares between corresponding rook and king are empty and neither have moved" do
-        board.board[5][7] = nil
-        board.board[6][7] = nil
-        expect(board.can_castle_right?(black_king)).to be true
+      context "white side" do
+        it "should return false when any squares between are occupied" do
+          board = Board.new
+          white_king = board.board[4][0]
+          expect(board.can_castle_right?(white_king)).to be false
+        end
+
+        it "should return true when squares between corresponding rook and king are empty and neither have moved" do
+          board = Board.new
+          white_king = board.board[4][0]
+          board.board[5][0] = nil
+          board.board[6][0] = nil
+          expect(board.can_castle_right?(white_king)).to be true
+        end
+
+        it "should return false when any squares passed over by the king are under attack" do
+          board = Board.new
+          white_king = board.board[4][0]
+          board.board[5][0] = nil
+          board.board[6][0] = nil
+          board.board[5][1] = Rook.new(:black, [5, 1])
+          expect(board.can_castle_right?(white_king)).to be false
+          board.board[6][1] = Rook.new(:black, [6, 1])
+          board.board[5][1] = nil
+          expect(board.can_castle_right?(white_king)).to be false
+        end
+
+        it "should return false when king has moved" do
+          board = Board.new
+          board.board[5][0] = nil
+          board.board[6][0] = nil
+          white_king = board.board[4][0]
+          white_king.first_move = false
+          expect(board.can_castle_right?(white_king)).to be false
+        end
+
+        it "should return false when rook has moved" do
+          board = Board.new
+          board.board[5][0] = nil
+          board.board[6][0] = nil
+          white_king = board.board[4][0]
+          board.right_white_rook.first_move = false
+          expect(board.can_castle_right?(white_king)).to be false
+        end
       end
 
-      it "should return false when king has moved" do
-        black_king.first_move = false
-        expect(board.can_castle_right?(black_king)).to be false
-      end
+      context "black side" do
+        it "should return false when any squares between are occupied" do
+          board = Board.new
+          black_king = board.board[4][7]
+          expect(board.can_castle_right?(black_king)).to be false
+        end
 
-      it "should return false when rook has moved" do
-        black_king.first_move = true
-        board.right_black_rook.first_move = false
-        expect(board.can_castle_right?(black_king)).to be false
-      end
+        it "should return true when squares between corresponding rook and king are empty and neither have moved" do
+          board = Board.new
+          black_king = board.board[4][7]
+          board.board[5][7] = nil
+          board.board[6][7] = nil
+          expect(board.can_castle_right?(black_king)).to be true
+        end
 
-      it "should return false when any squares between are occupied" do
-        board.board[5][7] = Bishop.new(:black, [5, 7])
-        expect(board.can_castle_right?(black_king)).to be false
+        it "should return false when any squares passed over by the king are under attack" do
+          board = Board.new
+          black_king = board.board[4][7]
+          board.board[5][7] = nil
+          board.board[6][7] = nil
+          board.board[5][6] = Rook.new(:white, [5, 6])
+          expect(board.can_castle_right?(black_king)).to be false
+          board.board[6][6] = Rook.new(:white, [6, 6])
+          board.board[3][1] = nil
+          expect(board.can_castle_right?(black_king)).to be false
+        end
+
+        it "should return false when king has moved" do
+          board = Board.new
+          board.board[5][7] = nil
+          board.board[6][7] = nil
+          black_king = board.board[4][7]
+          black_king.first_move = false
+          expect(board.can_castle_right?(black_king)).to be false
+        end
+
+        it "should return false when rook has moved" do
+          board = Board.new
+          board.board[5][7] = nil
+          board.board[6][7] = nil
+          black_king = board.board[4][7]
+          board.right_black_rook.first_move = false
+          expect(board.can_castle_right?(black_king)).to be false
+        end
       end
     end
 
@@ -253,47 +381,23 @@ describe Board do
         expect(board.king_in_check?(:white)).to be true
       end
     end
+
+    describe "#causes_check?" do
+      it "should return true when white piece makes move that puts white king in check" do
+        board = Board.new
+        board.board[6][2] = Bishop.new(:black, [6, 2])
+        expect(board.causes_check?(board.board[5][1], [5, 2])).to be true
+      end
+
+      it "should return true when black piece makes move that puts black king in check" do
+        board.board[2][5] = Bishop.new(:white, [2, 5])
+        expect(board.causes_check?(board.board[3][6], [3, 5])).to be true
+      end
+    end
   end
 
   context "getting move lists" do # Probably doesn't need to be tested if properly tested in individual piece classes
     describe "#get_moves" do
-      context "from pawns" do
-        it "should list 2 moves on pawn's first move with clear path" do
-          board = Board.new
-          pawn = board.board[3][1]
-          expect(board.get_moves(pawn).size).to be 2
-        end
-
-        it "should only list 1 move: forward 1 square, when not first move" do
-          pawn = board.board[3][1]
-          pawn.first_move = false
-          expect(board.get_moves(pawn).size).to be 1
-          expect(board.get_moves(pawn)).to eq [[3, 2]]
-        end
-
-        it "should list no moves when enemy piece is right in front with no capture possibilities" do
-          board = Board.new
-          pawn = board.board[3][1]
-          board.board[3][2] = Pawn.new(:black, [3, 2])
-          expect(board.get_moves(pawn)).to eq []
-        end
-
-        it "should list no moves when friendly piece is right in front with no capture possibilities" do
-          board = Board.new
-          pawn = board.board[3][1]
-          board.board[3][2] = Pawn.new(:white, [3, 2])
-          expect(board.get_moves(pawn)).to eq []
-        end
-
-        it "should list 4 possible moves on first move with 2 possible captures" do
-          board = Board.new
-          pawn = board.board[3][1]
-          board.board[3][2] = nil
-          board.board[2][2] = Pawn.new(:black, [2, 2])
-          board.board[4][2] = Pawn.new(:black, [4, 2])
-          expect(board.get_moves(pawn).size).to eq 4
-        end
-      end
     end
   end
 
@@ -386,6 +490,87 @@ describe Board do
 end
 
 context "trash" do
+
+  # context "from pawns" do
+  #   it "should list 2 moves on pawn's first move with clear path" do
+  #     board = Board.new
+  #     pawn = board.board[3][1]
+  #     expect(board.get_moves(pawn).size).to be 2
+  #   end
+
+  #   it "should only list 1 move: forward 1 square, when not first move" do
+  #     pawn = board.board[3][1]
+  #     pawn.first_move = false
+  #     expect(board.get_moves(pawn).size).to be 1
+  #     expect(board.get_moves(pawn)).to eq [[3, 2]]
+  #   end
+
+  #   it "should list no moves when enemy piece is right in front with no capture possibilities" do
+  #     board = Board.new
+  #     pawn = board.board[3][1]
+  #     board.board[3][2] = Pawn.new(:black, [3, 2])
+  #     expect(board.get_moves(pawn)).to eq []
+  #   end
+
+  #   it "should list no moves when friendly piece is right in front with no capture possibilities" do
+  #     board = Board.new
+  #     pawn = board.board[3][1]
+  #     board.board[3][2] = Pawn.new(:white, [3, 2])
+  #     expect(board.get_moves(pawn)).to eq []
+  #   end
+
+  #   it "should list 4 possible moves on first move with 2 possible captures" do
+  #     board = Board.new
+  #     pawn = board.board[3][1]
+  #     board.board[3][2] = nil
+  #     board.board[2][2] = Pawn.new(:black, [2, 2])
+  #     board.board[4][2] = Pawn.new(:black, [4, 2])
+  #     expect(board.get_moves(pawn).size).to eq 4
+  #   end
+  # end
+  # describe "#in_bounds?" do # Redundant, checked in game class
+  #   it "should return false when x coordinate is out of bounds" do
+  #     expect(board.in_bounds?([9, 1])).to be false
+  #   end
+
+  #   it "should return false when y coordinate is out of bounds" do
+  #     expect(board.in_bounds?([1, 9])).to be false
+  #   end
+
+  #   it "should return true when both x and y are in bounds" do
+  #     expect(board.in_bounds?([2, 2])).to be true
+  #   end
+  # end
+
+  # describe "#square_empty?" do # Most likely redundant after creating check_square function
+  #   it "should return true when there is no piece at destination" do
+  #     expect(board.square_empty?([3, 3])).to be true
+  #   end
+
+  #   it "should return false when destination is occupied" do
+  #     expect(board.square_empty?([0, 0])).to be false
+  #   end
+  # end
+
+  # describe "#current_players_piece?" do # Most likely redundant after creating check_square function
+  #   # Remove player instances and piece variables
+  #   it "should return true when player 1 selects a white piece" do
+  #     expect(board.current_players_piece?(board.board[0][1], :white)).to eq true
+  #   end
+
+  #   it "should return false when player 2 selects a white piece" do
+  #     expect(board.current_players_piece?(board.board[0][1], :black)).to eq false
+  #   end
+
+  #   it "should return true when player 2 selects a black piece" do
+  #     expect(board.current_players_piece?(board.board[0][6], :black)).to eq true
+  #   end
+
+  #   it "should return false when player 1 selects a black piece" do
+  #     expect(board.current_players_piece?(board.board[0][6], :white)).to eq false
+  #   end
+  # end
+
   # describe "#get_white_positions" do # Function probably not needed
       #   white_positions = board.get_white_positions
 
