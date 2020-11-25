@@ -7,8 +7,7 @@ require_relative 'pieces/queen.rb'
 require_relative 'pieces/king.rb'
 
 class Board
-  attr_accessor :passant_pawn,
-                :left_white_rook,
+  attr_accessor :left_white_rook,
                 :left_black_rook,
                 :right_white_rook,
                 :right_black_rook,
@@ -18,9 +17,111 @@ class Board
 
   def initialize
     @board = Array.new(8) { Array.new(8) }
-    @passant_pawn = nil
     @passant_opening = nil
     place_starting_pieces
+    @white_left_castle = true
+    @black_left_castle = true
+    @white_right_castle = true
+    @black_right_castle = true
+  end
+
+  def can_castle_left?(king)
+    case king.color
+    when :white
+      return false unless @white_left_castle
+
+      check_square([3, 0], :white) == 'empty' &&
+      check_square([2, 0], :white) == 'empty' &&
+      check_square([1, 0], :white) == 'empty' &&
+      !get_enemy_moves(:white).include?([3, 0]) &&
+      !get_enemy_moves(:white).include?([2, 0])
+
+    when :black
+      return false unless @black_left_castle
+
+      check_square([3, 7], :black) == 'empty' &&
+      check_square([2, 7], :black) == 'empty' &&
+      check_square([1, 7], :black) == 'empty' &&
+      !get_enemy_moves(:black).include?([3, 7]) &&
+      !get_enemy_moves(:black).include?([2, 7])
+    end
+  end
+
+  def can_castle_right?(king)
+    case king.color
+    when :white
+      return false unless @white_right_castle
+
+      check_square([5, 0], :white) == 'empty' &&
+        check_square([6, 0], :white) == 'empty' &&
+        !get_enemy_moves(:white).include?([5, 0]) &&
+        !get_enemy_moves(:white).include?([6, 0])
+    when :black
+      return false unless @black_right_castle
+
+      check_square([5, 7], :black) == 'empty' &&
+        check_square([6, 7], :black) == 'empty' &&
+        !get_enemy_moves(:black).include?([5, 7]) &&
+        !get_enemy_moves(:black).include?([6, 7])
+    end
+  end
+
+  def capture_check(piece, destination)
+    return if @board[destination[0]][destination[1]].nil?
+
+    @board[destination[0]][destination[1]].location = nil
+  end
+
+  def castle_left(king)
+    case king.color
+    when :white
+      @board[2][0] = king
+      @board[4][0] = nil
+      @board[3][0] = @board[0][0]
+      @board[0][0] = nil
+      @board[3][0].location = [3, 0]
+    when :black
+      @board[2][7] = king
+      @board[4][7] = nil
+      @board[3][7] = @board[0][7]
+      @board[0][7] = nil
+      @board[3][7].location = [3, 7]
+    end
+    king.location[0] = 2
+    king.color == :white ? @white_left_castle = false : @black_left_castle = false
+  end
+
+  def castle_right(king)
+    case king.color
+    when :white
+      @board[6][0] = king
+      @board[4][0] = nil
+      @board[5][0] = @board[7][0]
+      @board[7][0] = nil
+      @board[5][0].location = [5, 0]
+    when :black
+      @board[6][7] = king
+      @board[4][7] = nil
+      @board[5][7] = @board[7][7]
+      @board[7][7] = nil
+      @board[5][7].location = [5, 7]
+    end
+    king.location[0] = 6
+    king.color == :white ? @white_right_castle = false : @black_right_castle = false
+  end
+
+  def check_mate?(player_color)
+    player_color == :white ? @white_king.location.nil? : @black_king.location.nil?
+  end
+
+  def check_square(coords, player_color)
+    if @board[coords[0]][coords[1]].nil?
+      'empty'
+    elsif @board[coords[0]][coords[1]].color == player_color
+      'friendly'
+    else
+      'enemy'
+    end
   end
 
   def display_board
@@ -36,6 +137,150 @@ class Board
     end
     print "                 a   b   c   d   e   f   g   h \n"
     puts "\n\n\n"
+  end
+
+  def en_passant_move(piece, destination)
+    case piece.color
+    when :white
+      @board[destination[0]][destination[1] + 1] = nil
+    when :black
+      @board[destination[0]][destination[1] - 1] = nil
+    end
+    @board[destination[0]][destination[1]] = piece
+    @board[piece.location[0]][piece.location[1]] = nil
+    piece.location = destination
+  end
+
+  def get_enemy_list(color)
+    enemy_positions = []
+
+    8.times do |x|
+      8.times do |y|
+        enemy_positions << board[x][y] unless board[x][y].nil? || board[x][y].color == color
+      end
+    end
+    enemy_positions
+  end
+
+  def get_enemy_moves(color)
+    enemy_moves = []
+    get_enemy_list(color).each { |enemy| enemy_moves += enemy.get_moves }
+    enemy_moves
+  end
+
+  def get_moves(piece)
+    moves = piece.get_moves
+    #moves.delete_if { |move| test_causes_check?(piece, move) }
+    # moves.delete_if {|move| causes_check?(piece, move) }
+  end
+
+  def king_in_check?(color)
+    king = color == :white ? @white_king : @black_king
+    get_enemy_list(color).each do |enemy|
+      return true if enemy.get_moves.include?(king.location)
+    end
+    false
+  end
+
+  def king_move(king, destination)
+    if left_castle?(destination)
+      if @white_left_castle && king.color == :white
+        castle_left(king)
+      elsif @black_left_castle && king.color == :black
+        castle_left(king)
+      else
+        standard_move(king, destination)
+      end
+    elsif right_castle?(destination)
+      if @white_right_castle && king.color == :white
+        castle_right(king)
+        king.first_move = false
+      elsif @black_right_castle && king.color == :black
+        castle_right(king)
+        king.first_move = false
+      else
+        standard_move(king, destination)
+        king.first_move = false
+      end
+    else
+      standard_move(king, destination)
+      king.first_move = false
+    end
+    if king.color == :white
+      @white_right_castle = false
+      @white_left_castle = false
+    elsif king.color == :black
+      @black_right_castle = false
+      @black_left_castle = false
+    end
+  end
+
+  def left_castle?(destination)
+    destination[0] == 2
+  end
+
+  def move_pawn_2(pawn, destination)
+    @passant_opening = pawn.color == :white ? [destination[0], destination[1] - 1] : [destination[0], destination[1] + 1]
+    @board[destination[0]][destination[1]] = pawn
+    @board[pawn.location[0]][pawn.location[1]] = nil
+    pawn.first_move = false
+    pawn.location = destination
+  end
+
+  def move_piece(piece, destination)
+    case move_type(piece, destination)
+    when 'pawn 2'
+      move_pawn_2(piece, destination)
+    when 'passant capture'
+      en_passant_move(piece, destination)
+      @passant_opening = nil
+    when 'rook'
+      @passant_opening = nil
+      rook_move(piece, destination)
+    when 'king'
+      @passant_opening = nil
+      king_move(piece, destination)
+    else
+      @passant_opening = nil
+      standard_move(piece, destination)
+    end
+  end
+
+  def move_type(piece, destination)
+    return 'passant capture' if passant_capture?(destination)
+
+    case piece
+    when Pawn
+      if passant_vulnerable?(piece, destination)
+        'pawn 2'
+      else
+        'standard'
+      end
+    when King
+      return 'king'
+    when Rook
+      return 'rook'
+    else
+      return 'standard'
+    end
+  end
+
+  def no_moves?(coords)
+    get_moves(@board[coords[0]][coords[1]]).empty?
+  end
+
+  def passant_capture?(destination)
+    destination == @passant_opening
+  end
+
+  def passant_vulnerable?(piece, destination)
+    if piece.color == :white && piece.first_move
+      piece.location[1] == 1 && destination[1] == 3
+    elsif piece.color == :black && piece.first_move
+      piece.location[1] == 6 && destination[1] == 4
+    else
+      false
+    end
   end
 
   def place_starting_pieces
@@ -70,23 +315,54 @@ class Board
     @black_king = @board[4][7]
   end
 
-  def check_square(coords, player_color)
-    if @board[coords[0]][coords[1]].nil?
-      'empty'
-    elsif @board[coords[0]][coords[1]].color == player_color
-      'friendly'
+  def promote_pawn(pawn)
+    puts 'You can change it to a queen, rook, knight, or bishop'
+    puts 'Which would you like to promote it to?'
+    choice = gets.chomp.downcase
+    case choice
+    when 'queen'
+      @board[pawn.location[0]][pawn.location[1]] = Queen.new(pawn.color, pawn.location)
+    when 'rook'
+      @board[pawn.location[0]][pawn.location[1]] = Rook.new(pawn.color, pawn.location)
+    when 'knight'
+      @board[pawn.location[0]][pawn.location[1]] = Knight.new(pawn.color, pawn.location)
+    when 'bishop'
+      @board[pawn.location[0]][pawn.location[1]] = Bishop.new(pawn.color, pawn.location)
     else
-      'enemy'
+      puts 'Invalid input.'
+      promote_pawn(pawn)
     end
   end
 
-  def king_in_check?(color)
-    king = color == :white ? @white_king : @black_king
-    get_enemy_list(color).each do |enemy|
-      return true if enemy.get_moves.include?(king.location)
+  def promotion?(piece)
+    if piece.color == :white
+      return true if piece.location[1] == 7
+    else
+      return true if piece.location[1] == 0
     end
     false
-    # get_enemy_moves(color).include?(king.location)
+  end
+
+  def promotion_check(piece)
+    return false if !piece.instance_of?(Pawn) || !promotion?(piece)
+
+    puts 'Your pawn has been promoted!'
+    promote_pawn(piece)
+  end
+
+  def right_castle?(destination)
+    destination[0] == 6
+  end
+
+  def rook_move(rook, destination)
+    if rook.side == :left
+      rook.color == :white ? @white_left_castle = false : @black_left_castle = false
+    else
+      rook.color == :white ? @white_right_castle = false : @black_right_castle = false
+    end
+    @board[destination[0]][destination[1]] = rook
+    @board[rook.location[0]][rook.location[1]] = nil
+    rook.location = destination
   end
 
   def square_under_attack?(coords, color)
@@ -96,122 +372,15 @@ class Board
     false
   end
 
-  # def test_causes_check?(piece, destination)
-  #   test_board = TestBoard.new(@board)
-  #   test_board.white_king = @white_king.dup
-  #   test_board.black_king = @black_king.dup
-  #   location = piece.location
-  #   target_piece = test_board.board[location[0]][location[1]].dup
-  #   test_board.move_piece(target_piece, destination)
-  #   test_board.king_in_check?(piece.color)
-  # end
-
-  def causes_check?(piece, destination) # Trash trash trash wtf
-    check = false
-    first_move = piece.first_move
-    passant = @passant_pawn.dup.dup
-    board_copy = Board.new
-    board_copy.board = @board.dup.map(&:dup)
-    board_copy.passant_pawn = passant
-    board_copy.white_king = @board[@white_king.location[0]][@white_king.location[1]]
-    board_copy.black_king = @board[@black_king.location[0]][@black_king.location[1]]
-    original_location = piece.location
-    piece_copy = board_copy.board[original_location[0]][original_location[1]]
-    board_copy.move_piece(piece_copy, destination)
-    check = true if board_copy.king_in_check?(piece_copy.color)
-    piece.location = original_location
-    piece.first_move = first_move
-    @passant_pawn = passant
-    check
+  def standard_move(piece, destination)
+    @board[destination[0]][destination[1]] = piece
+    @board[piece.location[0]][piece.location[1]] = nil
+    piece.location = destination
   end
 
-  def get_enemy_list(color)
-    enemy_positions = []
-
-    8.times do |x|
-      8.times do |y|
-        enemy_positions << board[x][y] unless board[x][y].nil? || board[x][y].color == color
-      end
-    end
-    enemy_positions
-  end
-
-  def get_enemy_moves(color)
-    enemy_moves = []
-    get_enemy_list(color).each { |enemy| enemy_moves += enemy.get_moves }
-    enemy_moves
-  end
-
-  def can_castle_left?(king)
-    return false unless king.first_move
-
-    case king.color
-    when :white
-      return false unless @left_white_rook.first_move
-
-      check_square([3, 0], :white) == 'empty' &&
-        check_square([2, 0], :white) == 'empty' &&
-        check_square([1, 0], :white) == 'empty' &&
-        !causes_check?(king, [3, 0]) &&
-        !causes_check?(king, [2, 0])
-    when :black
-      return false unless @left_black_rook.first_move
-
-      check_square([3, 7], :black) == 'empty' &&
-        check_square([2, 7], :black) == 'empty' &&
-        check_square([1, 7], :black) == 'empty' &&
-        !causes_check?(king, [3, 7]) &&
-        !causes_check?(king, [2, 7])
-    end
-  end
-
-  def can_castle_right?(king)
-    return false unless king.first_move
-
-    case king.color
-    when :white
-      return false unless @right_white_rook.first_move
-
-      check_square([5, 0], :white) == 'empty' &&
-        check_square([6, 0], :white) == 'empty' &&
-        !causes_check?(king, [5, 0]) &&
-        !causes_check?(king, [6, 0])
-    when :black
-      return false unless @right_black_rook.first_move
-
-      check_square([5, 7], :black) == 'empty' &&
-        check_square([6, 7], :black) == 'empty' &&
-        !causes_check?(king, [5, 7]) &&
-        !causes_check?(king, [6, 7])
-    end
-  end
-
-  def castle_check(piece, destination)
-    return unless piece.instance_of?(King)
-
-    if destination[0] == piece.location[0] + 2
-      castle_right(piece.color)
-      nil
-    elsif destination[0] == piece.location[0] - 2
-      castle_left(piece.color)
-      nil
-    end
-  end
-
-  def castle_left(color)
-    if color == :white
-      move_piece(@left_white_rook, [3, 0])
-    else
-      move_piece(@left_black_rook, [3, 7])
-    end
-  end
-
-  def castle_right(color)
-    if color == :white
-      move_piece(@right_white_rook, [5, 0])
-    else
-      move_piece(@right_black_rook, [5, 7])
-    end
+  def valid_destination?(piece, destination)
+    moves = get_moves(piece)
+    moves.include?(destination)
   end
 
   def valid_selection?(coords, player_color)
@@ -230,15 +399,66 @@ class Board
       true
     end
   end
+end
 
-  def no_moves?(coords)
-    get_moves(@board[coords[0]][coords[1]]).empty?
-  end
+def trash
 
-  def valid_destination?(piece, destination)
-    moves = get_moves(piece)
-    moves.include?(destination)
-  end
+  # def causes_check?(piece, destination) # Trash trash trash wtf
+  #   check = false
+  #   first_move = piece.first_move
+  #   passant = @passant_pawn.dup.dup
+  #   board_copy = Board.new
+  #   board_copy.board = @board.dup.map(&:dup)
+  #   board_copy.passant_pawn = passant
+  #   board_copy.white_king = @board[@white_king.location[0]][@white_king.location[1]]
+  #   board_copy.black_king = @board[@black_king.location[0]][@black_king.location[1]]
+  #   original_location = piece.location
+  #   piece_copy = board_copy.board[original_location[0]][original_location[1]]
+  #   board_copy.move_piece(piece_copy, destination)
+  #   check = true if board_copy.king_in_check?(piece_copy.color)
+  #   piece.location = original_location
+  #   piece.first_move = first_move
+  #   @passant_pawn = passant
+  #   check
+  # end
+
+  # def castle_left(color)
+  #   if color == :white
+  #     move_piece(@left_white_rook, [3, 0])
+  #   else
+  #     move_piece(@left_black_rook, [3, 7])
+  #   end
+  # end
+
+  # def castle_right(color)
+  #   if color == :white
+  #     move_piece(@right_white_rook, [5, 0])
+  #   else
+  #     move_piece(@right_black_rook, [5, 7])
+  #   end
+  # end
+
+  # def castle_check(piece, destination)
+  #   return unless piece.instance_of?(King)
+
+  #   if destination[0] == piece.location[0] + 2
+  #     castle_right(piece.color)
+  #     nil
+  #   elsif destination[0] == piece.location[0] - 2
+  #     castle_left(piece.color)
+  #     nil
+  #   end
+  # end
+
+  # def test_causes_check?(piece, destination)
+  #   test_board = TestBoard.new(@board)
+  #   test_board.white_king = @white_king.dup
+  #   test_board.black_king = @black_king.dup
+  #   location = piece.location
+  #   target_piece = test_board.board[location[0]][location[1]].dup
+  #   test_board.move_piece(target_piece, destination)
+  #   test_board.king_in_check?(piece.color)
+  # end
 
   # def passant_check(piece, destination)
   #   p piece.location
@@ -280,278 +500,6 @@ class Board
   #   end
   # end
 
-  def passant_capture?(destination)
-    destination == @passant_opening
-  end
-
-  # def passant_capture?(destination, piece_color)
-  #   # true if there is a passant opening and enemy is moving into it
-  #   !@passant_pawn.nil? &&
-  #   destination == @passant_pawn.location &&
-  #   @passant_pawn.color != piece_color
-  # end
-
-  def promotion?(piece)
-    if piece.color == :white
-      return true if piece.location[1] == 7
-    else
-      return true if piece.location[1] == 0
-    end
-    false
-  end
-
-  def promote_pawn(pawn)
-    puts 'You can change it to a queen, rook, knight, or bishop'
-    puts 'Which would you like to promote it to?'
-    choice = gets.chomp.downcase
-    case choice
-    when 'queen'
-      @board[pawn.location[0]][pawn.location[1]] = Queen.new(pawn.color, pawn.location)
-    when 'rook'
-      @board[pawn.location[0]][pawn.location[1]] = Rook.new(pawn.color, pawn.location)
-    when 'knight'
-      @board[pawn.location[0]][pawn.location[1]] = Knight.new(pawn.color, pawn.location)
-    when 'bishop'
-      @board[pawn.location[0]][pawn.location[1]] = Bishop.new(pawn.color, pawn.location)
-    else
-      puts 'Invalid input.'
-      promote_pawn(pawn)
-    end
-  end
-
-  def promotion_check(piece)
-    return false if !piece.instance_of?(Pawn) || !promotion?(piece)
-
-    puts 'Your pawn has been promoted!'
-    promote_pawn(piece)
-  end
-
-  def capture_check(_piece, destination)
-    return if @board[destination[0]][destination[1]].nil?
-
-    @board[destination[0]][destination[1]].location = nil
-  end
-
-  def move_piece(piece, destination)
-    case move_type(piece, destination)
-    when 'pawn 2'
-      move_pawn_2(piece, destination)
-      p "Passant opening: #{@passant_opening}"
-    when 'passant capture'
-      en_passant_move(piece, destination)
-      @passant_opening = nil
-      p 'Passant capture'
-    when 'rook'
-      @passant_opening = nil
-      rook_move(piece, destination)
-      p 'Rook move'
-    when 'king'
-      @passant_opening = nil
-      king_move(piece, destination)
-      p 'King move'
-    else
-      @passant_opening = nil
-      standard_move(piece, destination)
-      p "Standard move: #{piece.location}"
-    end
-  end
-
-  def move_type(piece, destination)
-    return 'passant capture' if passant_capture?(destination)
-
-    case piece
-    when Pawn
-      if passant_vulnerable?(piece, destination)
-        'pawn 2'
-      else
-        'standard'
-      end
-    when King
-      return 'king'
-      p 'King'
-    when Rook
-      return 'rook'
-      p 'Rook'
-    else
-      return 'standard'
-      p 'Other'
-    end
-  end
-
-  def can_castle_left?(king)
-    return false unless king.first_move
-
-    case king.color
-    when :white
-      return false unless @white_left_castle
-
-      check_square([3, 0], :white) == 'empty' &&
-        check_square([2, 0], :white) == 'empty' &&
-        check_square([1, 0], :white) == 'empty' &&
-        !get_enemy_moves(:white).include?([3, 0]) &&
-        !get_enemy_moves(:white).include?([2, 0])
-
-    when :black
-      return false unless @black_left_castle
-
-      check_square([3, 7], :black) == 'empty' &&
-        check_square([2, 7], :black) == 'empty' &&
-        check_square([1, 7], :black) == 'empty' &&
-        !get_enemy_moves(:black).include?([3, 7]) &&
-        !get_enemy_moves(:black).include?([2, 7])
-    end
-  end
-
-  def can_castle_right?(king)
-    return false unless king.first_move
-
-    case king.color
-    when :white
-      return false unless @white_right_castle
-
-      check_square([5, 0], :white) == 'empty' &&
-        check_square([6, 0], :white) == 'empty' &&
-        !get_enemy_moves(:white).include?([5, 0]) &&
-        !get_enemy_moves(:white).include?([6, 0])
-    when :black
-      return false unless @black_right_castle
-
-      check_square([5, 7], :black) == 'empty' &&
-        check_square([6, 7], :black) == 'empty' &&
-        !get_enemy_moves(:black).include?([5, 7]) &&
-        !get_enemy_moves(:black).include?([6, 7])
-    end
-  end
-
-  def king_move(king, destination)
-    if left_castle?(destination)
-      if @white_left_castle && king.color == :white
-        p 'Left white castle'
-        castle_left(king)
-      elsif @black_left_castle && king.color == :black
-        p 'Left black castle'
-        castle_left(king)
-      else
-        p 'Standard king move'
-        standard_move(king, destination)
-      end
-    elsif right_castle?(destination)
-      if @white_right_castle && king.color == :white
-        p 'White right castle'
-        castle_right(king)
-        king.first_move = false
-      elsif @black_right_castle && king.color == :black
-        p 'Black right castle'
-        castle_right(king)
-        king.first_move = false
-      else
-        p 'Standard king move'
-        standard_move(king, destination)
-        king.first_move = false
-      end
-    else
-      p 'Standard king move'
-      standard_move(king, destination)
-      king.first_move = false
-    end
-  end
-
-  def passant_vulnerable?(piece, destination)
-    if piece.color == :white && piece.first_move
-      piece.location[1] == 1 && destination[1] == 3
-    elsif piece.color == :black && piece.first_move
-      piece.location[1] == 6 && destination[1] == 4
-    else
-      false
-    end
-  end
-
-  def passant_capture?(destination)
-    destination == @passant_opening
-  end
-
-  def left_castle?(destination)
-    destination[0] == 2
-  end
-
-  def castle_left(king)
-    case king.color
-    when :white
-      @board[2][0] = king
-      @board[4][0] = nil
-      @board[3][0] = @board[0][0]
-      @board[0][0] = nil
-      @board[3][0].location = [3, 0]
-    when :black
-      @board[2][7] = king
-      @board[4][7] = nil
-      @board[3][7] = @board[0][7]
-      @board[0][7] = nil
-      @board[3][7].location = [3, 7]
-    end
-    king.location[0] = king.color == :white ? @white_left_castle = false : @black_left_castle = false
-  end
-
-  def right_castle?(destination)
-    destination[0] == 6
-  end
-
-  def castle_right(king)
-    case king.color
-    when :white
-      @board[6][0] = king
-      @board[4][0] = nil
-      @board[5][0] = @board[7][0]
-      @board[7][0] = nil
-      @board[5][0].location = [5, 0]
-    when :black
-      @board[6][7] = king
-      @board[4][7] = nil
-      @board[5][7] = @board[7][7]
-      @board[7][7] = nil
-      @board[5][7].location = [5, 7]
-    end
-    king.location[0] = 6
-    king.color == :white ? @white_right_castle = false : @black_right_castle = false
-  end
-
-  def rook_move(rook, destination)
-    if rook.side == :left
-      rook.color == :white ? @white_left_castle = false : @black_left_castle = false
-    else
-      rook.color == :white ? @white_right_castle = false : @black_left_castle = false
-    end
-    @board[destination[0]][destination[1]] = rook
-    @board[rook.location[0]][rook.location[1]] = nil
-    rook.location = destination
-  end
-
-  def move_pawn_2(pawn, destination)
-    @passant_opening = pawn.color == :white ? [destination[0], destination[1] - 1] : [destination[0], destination[1] + 1]
-    @board[destination[0]][destination[1]] = pawn
-    @board[pawn.location[0]][pawn.location[1]] = nil
-    pawn.first_move = false
-    pawn.location = destination
-  end
-
-  def standard_move(piece, destination)
-    @board[destination[0]][destination[1]] = piece
-    @board[piece.location[0]][piece.location[1]] = nil
-    piece.location = destination
-  end
-
-  def en_passant_move(piece, destination)
-    case piece.color
-    when :white
-      @board[destination[0]][destination[1] + 1] = nil
-    when :black
-      @board[destination[0]][destination[1] - 1] = nil
-    end
-    @board[destination[0]][destination[1]] = piece
-    @board[piece.location[0]][piece.location[1]] = nil
-    piece.location = destination
-  end
-
   # def move_piece(piece, destination)
   #   # p "Passant: #{@passant_pawn}"
   #   # passant_check(piece, destination)
@@ -568,18 +516,56 @@ class Board
   #   promotion_check(piece)
   # end
 
-  def get_moves(piece)
-    moves = piece.get_moves
-    #moves.delete_if { |move| test_causes_check?(piece, move) }
-    # moves.delete_if {|move| causes_check?(piece, move) }
-  end
+  # def passant_capture?(destination, piece_color)
+  #   # true if there is a passant opening and enemy is moving into it
+  #   !@passant_pawn.nil? &&
+  #   destination == @passant_pawn.location &&
+  #   @passant_pawn.color != piece_color
+  # end
 
-  def check_mate?(player_color)
-    player_color == :white ? @white_king.location.nil? : @black_king.location.nil?
-  end
-end
+  # def can_castle_left?(king)
+  #   return false unless king.first_move
 
-def trash
+  #   case king.color
+  #   when :white
+  #     return false unless @left_white_rook.first_move
+
+  #     check_square([3, 0], :white) == 'empty' &&
+  #       check_square([2, 0], :white) == 'empty' &&
+  #       check_square([1, 0], :white) == 'empty' &&
+  #       !causes_check?(king, [3, 0]) &&
+  #       !causes_check?(king, [2, 0])
+  #   when :black
+  #     return false unless @left_black_rook.first_move
+
+  #     check_square([3, 7], :black) == 'empty' &&
+  #       check_square([2, 7], :black) == 'empty' &&
+  #       check_square([1, 7], :black) == 'empty' &&
+  #       !causes_check?(king, [3, 7]) &&
+  #       !causes_check?(king, [2, 7])
+  #   end
+  # end
+
+  # def can_castle_right?(king)
+  #   return false unless king.first_move
+
+  #   case king.color
+  #   when :white
+  #     return false unless @right_white_rook.first_move
+
+  #     check_square([5, 0], :white) == 'empty' &&
+  #       check_square([6, 0], :white) == 'empty' &&
+  #       !causes_check?(king, [5, 0]) &&
+  #       !causes_check?(king, [6, 0])
+  #   when :black
+  #     return false unless @right_black_rook.first_move
+
+  #     check_square([5, 7], :black) == 'empty' &&
+  #       check_square([6, 7], :black) == 'empty' &&
+  #       !causes_check?(king, [5, 7]) &&
+  #       !causes_check?(king, [6, 7])
+  #   end
+  # end
   # def in_bounds?(move)
   #   (1..8).include?(move[0]) && (1..8).include?(move[1])
   # end
