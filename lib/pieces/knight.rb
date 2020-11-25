@@ -25,12 +25,8 @@ class Knight < Piece
       y = @location[1] + dy[i]
       
       moves << [x, y] unless [x, y].any? {|i| i < 0 || i > 7}
-      # !board.board[x][y].nil? && board.board[x][y].color == @color
       moves
     end
-    
-    moves.reject! { |move| move.any? {!board.board[move[0]][move[1]].nil? && board.board[move[0]][move[1]].color == @color} }
-
     moves
   end
 end
