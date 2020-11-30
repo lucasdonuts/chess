@@ -1,20 +1,27 @@
-RIGHT NOW: fixed stack level bug, still need to implement king_in_check
-           Game not recognizing checkmate, should be an easy solution
-           
+RIGHT NOW:  First: Add and/or rework needed tests
+                   Pawn move consolidation?
+            Then: 1. find_king(color)
+                  2. white_king and black_king
+                  3. checkmate?(piece, destination)
+                  4. move_type; return checkmate if checkmate?
 
-Getting enemy moves is causing stack overload after
-            a few moves have been made
+fix pawn get_captures to include passant openings
+  Adding passant_opening branch to check_square function DONE
+  then trying to implement it into pawn get_captures DONE
+  testing en passant captures DONE (Will continue to test)
 
-            Currently have a fresh start on board class
-            - Keep get_move piece functions independent of board
-              and filter illegal moves in board class
-            - ASAP: Either find a way to duplicate board without
-              affecting original, or find a way to test if move
-              puts king in check without duplicating board
-            - Removing location attribute from piece classes may help
-            - Try to think of other attributes that may help if
-              applied to piece classes
-                - ID?
+May have need for pawn move function to consolidate special cases for pawns
+
+Game not recognizing checkmate, should be an easy solution
+            Try implementing a find_king method or add king_capture? method and check to move type
+              Find_king may be more useful
+              Maybe both
+            Pawns not recognizing passant vulnerabilities FIXED
+
+            MAKE SURE YOU TEST ALL OF THE ABOVE
+
+Getting enemy moves is causing stack overload after a few moves have been made FIXED
+
           
 
 Testing game
@@ -22,7 +29,7 @@ Testing game
             Retroactively changes passant_pawn variable and probably other things
             Find a way to alter copy without affecting original at all
             Possibly rework
-              passant implementation
+              passant implementation DONE
               destination validation
 
             moving check deletions to validation method FAIL
@@ -30,14 +37,14 @@ Testing game
 
 Add letter and number coordinates to display_board function DONE
 
-Move check_game_state to after display_board on game class
+Move check_game_state to after display_board on game class MAYBE NOT
 
 Implement en passant DONE
   Implemented on board, but piece still doesn't recognize legality DONE
 
 Add king in check function DONE
 
-Add castling DONE (Not fully tested)
+Add castling DONE
   Rules: The king and the corresponding rook haven't moved yet
          All spaces between the king and the rook must be empty.
          The king cannot be put in check.
@@ -54,18 +61,18 @@ Implement get move functions DO THIS NEXT FOR ALL PIECES
   pawn DONE
   knight DONE
   queen DONE
-  king
+  king DONE
   rook DONE (Except for castling, most likely will be in king class)
   bishop DONE
   update all class move functions to check if move puts king_in_check
 
 Decide if get_moves needs to be tested in board_spec or not
 
-Probably don't need general piece superclass
+Probably don't need general piece superclass WRONG
 
-Add function to check if piece has no moves (no_moves?)
+Add function to check if piece has no moves (no_moves?) DONE
 
-Add menu functionality to input validation
+Add menu functionality to input validation LAST
   Help
   Quit
   Save
@@ -73,7 +80,7 @@ Add menu functionality to input validation
 Refactor Piece classes
   Maybe combine up/down move and left/right move functions
     Rook DONE
-    Queen
+    Queen DONE
 
 Refactor board class
   Refactor validation methods to include check_square function
@@ -112,29 +119,3 @@ REMOVE ALL TRASH CODE FROM EVERY FILE
   piece_spec.rb
   queen_spec.rb
   rook_spec.rb
-
-Right now:
-  Starting game loop
-  Ask for/validate chosen destination DONE
-  Need to finish board's validate move function
-    Check if piece has any moves
-    Finish all pieces king_in_check? functions
-      pawn
-      rook
-      knight
-      bishop
-      queen
-      king
-  Working on board's move_piece function DONE (Not tested for all pieces)
-    Put piece at new location
-    Set old location to nil
-  
-
-Functions just added:
-  board.promotion? DONE
-  board.promotion_check DONE
-  board.promote_piece DONE
-  board.check_mate? DONE
-  game.game_over DONE
-  game.play_again? DONE
-  game.reset_game DONE

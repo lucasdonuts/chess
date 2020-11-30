@@ -13,7 +13,8 @@ class Board
                 :right_black_rook,
                 :white_king,
                 :black_king,
-                :board
+                :board,
+                :passant_opening
 
   def initialize
     @board = Array.new(8) { Array.new(8) }
@@ -66,7 +67,7 @@ class Board
     end
   end
 
-  def capture_check(piece, destination)
+  def capture_check(piece, destination) # Possibly obsolete
     return if @board[destination[0]][destination[1]].nil?
 
     @board[destination[0]][destination[1]].location = nil
@@ -111,16 +112,18 @@ class Board
   end
 
   def check_mate?(player_color)
-    player_color == :white ? @white_king.nil? : @black_king.nil?
+    player_color == :white ? @black_king.nil? : @white_king.nil?
   end
 
   def check_square(coords, player_color)
-    if @board[coords[0]][coords[1]].nil?
-      'empty'
+    if coords == @passant_opening
+      return 'en passant'
+    elsif @board[coords[0]][coords[1]].nil?
+      return 'empty'
     elsif @board[coords[0]][coords[1]].color == player_color
-      'friendly'
+      return 'friendly'
     else
-      'enemy'
+      return 'enemy'
     end
   end
 
@@ -139,28 +142,17 @@ class Board
     puts "\n\n\n"
   end
 
-  def en_passant_move(piece, destination)
+  def en_passant_capture(piece, destination)
     case piece.color
     when :white
-      @board[destination[0]][destination[1] + 1] = nil
-    when :black
       @board[destination[0]][destination[1] - 1] = nil
+    when :black
+      @board[destination[0]][destination[1] + 1] = nil
     end
     @board[destination[0]][destination[1]] = piece
     @board[piece.location[0]][piece.location[1]] = nil
     piece.location = destination
   end
-
-  # def get_enemy_list(color)
-  #   enemy_positions = []
-
-  #   8.times do |x|
-  #     8.times do |y|
-  #       enemy_positions << board[x][y] unless board[x][y].nil? || board[x][y].color == color
-  #     end
-  #   end
-  #   enemy_positions
-  # end
 
   def get_enemy_list(color)
     enemy_positions = []
@@ -173,7 +165,7 @@ class Board
     enemy_positions
   end
 
-  def get_enemy_moves(color)
+  def get_enemy_moves(color) # Possibly obsolete
     enemy_moves = []
     get_enemy_list(color).each { |enemy| enemy_moves += enemy.get_moves }
     enemy_moves
@@ -243,7 +235,7 @@ class Board
     when 'pawn 2'
       move_pawn_2(piece, destination)
     when 'passant capture'
-      en_passant_move(piece, destination)
+      en_passant_capture(piece, destination)
       @passant_opening = nil
     when 'rook'
       @passant_opening = nil
@@ -263,9 +255,9 @@ class Board
     case piece
     when Pawn
       if passant_vulnerable?(piece, destination)
-        'pawn 2'
+        return 'pawn 2'
       else
-        'standard'
+        return 'standard'
       end
     when King
       return 'king'
@@ -347,14 +339,13 @@ class Board
 
   def promotion?(piece)
     if piece.color == :white
-      return true if piece.location[1] == 7
-    else
-      return true if piece.location[1] == 0
+      return piece.location[1] == 7
+    elsif piece.color == :black
+      return piece.location[1] == 0
     end
-    false
   end
 
-  def promotion_check(piece)
+  def promotion_check(piece) # Probably obsolete after pawn move refactoring
     return false if !piece.instance_of?(Pawn) || !promotion?(piece)
 
     puts 'Your pawn has been promoted!'
@@ -376,13 +367,6 @@ class Board
     rook.location = destination
   end
 
-  # def square_under_attack?(coords, color)
-  #   get_enemy_list(color).each do |enemy|
-  #     return true if enemy.get_moves.include?(coords)
-  #   end
-  #   false
-  # end
-
   def square_under_attack?(coords, color)
     get_enemy_list(color).each do |enemy|
       return true if @board[enemy[0]][enemy[1]].get_moves.include?(coords)
@@ -397,7 +381,7 @@ class Board
   end
 
   def valid_destination?(piece, destination)
-    moves = get_moves(piece)
+    moves = piece.get_moves
     moves.include?(destination)
   end
 
@@ -420,6 +404,24 @@ class Board
 end
 
 def trash
+
+  # def square_under_attack?(coords, color)
+  #   get_enemy_list(color).each do |enemy|
+  #     return true if enemy.get_moves.include?(coords)
+  #   end
+  #   false
+  # end
+
+  # def get_enemy_list(color)
+  #   enemy_positions = []
+
+  #   8.times do |x|
+  #     8.times do |y|
+  #       enemy_positions << board[x][y] unless board[x][y].nil? || board[x][y].color == color
+  #     end
+  #   end
+  #   enemy_positions
+  # end
 
   # def causes_check?(piece, destination) # Trash trash trash wtf
   #   check = false

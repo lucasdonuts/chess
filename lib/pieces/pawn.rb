@@ -5,18 +5,34 @@ class Pawn < Piece
     @color == :white ? '♟' : '♙'
   end
 
+  # def get_captures
+  #   captures = []
+  #   case @color
+  #   when :white
+  #     right = @board.board[@location[0] + 1][@location[1] + 1] unless @location[0] + 1 > 7
+  #     left = @board.board[@location[0] - 1][@location[1] + 1] unless @location[0] - 1 < 0
+  #   when :black
+  #     right = @board.board[@location[0] + 1][@location[1] - 1] unless @location[0] + 1 > 7
+  #     left = @board.board[@location[0] - 1][@location[1] - 1] unless @location[0] - 1 < 0
+  #   end
+  #   captures << right.location unless right.nil?
+  #   captures << left.location unless left.nil?
+  #   captures
+  # end
+
   def get_captures
     captures = []
     case @color
     when :white
-      right = @board.board[@location[0] + 1][@location[1] + 1] unless @location[0] + 1 > 7
-      left = @board.board[@location[0] - 1][@location[1] + 1] unless @location[0] - 1 < 0
+      right = [@location[0] + 1, @location[1] + 1] unless @location[0] + 1 > 7
+      left = [@location[0] - 1, @location[1] + 1] unless @location[0] - 1 < 0
     when :black
-      right = @board.board[@location[0] + 1][@location[1] - 1] unless @location[0] + 1 > 7
-      left = @board.board[@location[0] - 1][@location[1] - 1] unless @location[0] - 1 < 0
+      right = [@location[0] + 1, @location[1] - 1] unless @location[0] + 1 > 7
+      left = [@location[0] - 1, @location[1] - 1] unless @location[0] - 1 < 0
     end
-    captures << right.location unless right.nil?
-    captures << left.location unless left.nil?
+    captures << right
+    captures << left
+    captures.delete_if {|move| move.nil? || @board.check_square(move, @color) != 'enemy' && @board.check_square(move, @color) != 'en passant' }
     captures
   end
 
@@ -42,6 +58,7 @@ class Pawn < Piece
         moves << [@location[0], @location[1] - 1]
       end
     end
+    moves.reject!{|move| move.any?{|i| i < 0 || i > 7 }}
     moves
   end
 end
