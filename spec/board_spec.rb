@@ -642,7 +642,20 @@ describe Board do
     end
 
     context "standard move" do
-      
+      board = Board.new
+      pawn = board.board[0][1]
+      board.standard_move(pawn, [0, 2])
+      it "should move the piece to its intended destination" do
+        expect(board.board[0][2]).to eq pawn
+      end
+
+      it "should clear square at piece's old location" do
+        expect(board.board[0][1]).to be nil
+      end
+
+      it "should update piece's location attribute" do
+        expect(pawn.location).to eq([0, 2])
+      end
     end
 
     context "en passant" do
