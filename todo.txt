@@ -1,5 +1,27 @@
 RIGHT NOW:
 
+REMOVE ALL TRASH CODE FROM EVERY FILE
+  bishop.rb DONE
+  king.rb DONE
+  knight.rb DONE
+  pawn.rb DONE
+  piece.rb DONE
+  queen.rb DONE
+  rook.rb DONE
+  board.rb DONE
+  game.rb DONE
+  player.rb DONE
+
+  bishop_spec.rb DONE
+  board_spec.rb DONE
+  game_spec.rb DONE
+  king_spec.rb DONE
+  knight_spec.rb DONE
+  pawn_spec.rb DONE
+  piece_spec.rb DONE
+  queen_spec.rb DONE
+  rook_spec.rb DONE
+
 Save functionality DONE
 
 Add menu functionality to input validation DONE
@@ -75,25 +97,3 @@ Refactor piece tests
   Make rook tests more closely resemble bishop with pieces created at 5, 3 and 2, 4
   Possibly pawn tests as well, but probably not needed
   See if it's possible to remove board dependencies with mocks and/or doubles
-
-REMOVE ALL TRASH CODE FROM EVERY FILE
-  bishop.rb
-  king.rb
-  knight.rb
-  pawn.rb
-  piece.rb
-  queen.rb
-  rook.rb
-  board.rb
-  game.rb
-  player.rb
-
-  bishop_spec.rb
-  board_spec.rb
-  game_spec.rb
-  king_spec.rb
-  knight_spec.rb
-  pawn_spec.rb
-  piece_spec.rb
-  queen_spec.rb
-  rook_spec.rb

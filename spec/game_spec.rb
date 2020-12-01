@@ -30,6 +30,7 @@ describe Game do
       expect(game.translate_input(["h", "8"])).to eq([7, 7])
     end
   end
+  
   describe "#switch_current_player" do
     it "should switch to player 2 from player 1" do
       expect(game.switch_current_player).to eq(game.player2)

@@ -11,12 +11,10 @@ require 'yaml'
 
 class Game
   attr_reader :player1, :player2, :current_player
-  attr_accessor :board # REMOVE ME
   def initialize
     @player1 = Player.new('Player 1', :white)
     @player2 = Player.new('Player 2', :black)
     @board = Board.new
-
     @current_player = @player1
     start_game
   end
@@ -237,25 +235,4 @@ class Game
     winner = @current_player.color == :white ? @player2 : @player1
     puts "Checkmate! #{winner.name}, you win!"
   end
-end
-
-def trash
-
-
-  # def get_piece_selection
-  #   print "\n#{@current_player.name}, enter the coordinates of the piece you would like to move: "
-  #   from = gets.chomp.split('')
-  #   if valid_input?(from)
-  #     from = translate_input(from)
-  #     if @board.valid_selection?(from, @current_player.color)
-  #       return @board.board[from[0]][from[1]]
-  #     else
-  #       get_piece_selection
-  #     end
-  #   else
-  #     puts "\nInput invalid. Must be in letternumber format, " +
-  #          "a-h and 1-8, like a1 or d5."
-  #     get_piece_selection
-  #   end
-  # end
 end
