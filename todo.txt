@@ -1,4 +1,11 @@
-RIGHT NOW: 
+RIGHT NOW:
+
+Save functionality DONE
+
+Add menu functionality to input validation DONE
+  Help
+  Quit
+  Save
 
 fix pawn get_captures to include passant openings DONE
   Adding passant_opening branch to check_square function DONE
@@ -11,22 +18,9 @@ Game not recognizing checkmate, should be an easy solution FIXED
 
 Getting enemy moves is causing stack overload after a few moves have been made FIXED
 
-          
-
-Testing game
-            Still need to re-work causes_check?
-            Retroactively changes passant_pawn variable and probably other things
-            Find a way to alter copy without affecting original at all
-            Possibly rework
-              passant implementation DONE
-              destination validation
-
-            moving check deletions to validation method FAIL
-            
-
 Add letter and number coordinates to display_board function DONE
 
-Move check_game_state to after display_board on game class MAYBE NOT
+Move check_game_state to after display_board on game class DONE
 
 Implement en passant DONE
   Implemented on board, but piece still doesn't recognize legality DONE
@@ -42,7 +36,7 @@ Add castling DONE
 Implement promotions DONE
 
 Implement get move functions DO THIS NEXT FOR ALL PIECES
-  Possibly create check_square function to be used with case statement
+  Possibly create check_square function to be used with case statement DONE
     case check_square
     when capture
     when friendly
@@ -53,18 +47,13 @@ Implement get move functions DO THIS NEXT FOR ALL PIECES
   king DONE
   rook DONE (Except for castling, most likely will be in king class)
   bishop DONE
-  update all class move functions to check if move puts king_in_check
+  update all class move functions to check if move puts king_in_check DONE (implemented in board class)
 
-Decide if get_moves needs to be tested in board_spec or not
+Decide if get_moves needs to be tested in board_spec or not 
 
 Probably don't need general piece superclass WRONG
 
 Add function to check if piece has no moves (no_moves?) DONE
-
-Add menu functionality to input validation LAST
-  Help
-  Quit
-  Save
 
 Refactor Piece classes
   Maybe combine up/down move and left/right move functions

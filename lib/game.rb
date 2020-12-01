@@ -7,7 +7,7 @@ require_relative 'pieces/rook.rb'
 require_relative 'pieces/bishop.rb'
 require_relative 'pieces/knight.rb'
 require_relative 'pieces/queen.rb'
-require 'pry'
+require 'yaml'
 
 class Game
   attr_reader :player1, :player2, :current_player
@@ -18,18 +18,120 @@ class Game
     @board = Board.new
 
     @current_player = @player1
-    #game_loop
+    start_game
+  end
+
+  def start_game
+    welcome_message
+    check_save
   end
 
   def game_loop
-    welcome_message
     loop do
       @board.display_board
       check_game_state
-      selected_piece = get_piece_selection
-      destination = get_destination(selected_piece)
-      @board.move_piece(selected_piece, destination)
+      prompt_user_input
       switch_current_player
+    end
+  end
+
+  def check_save
+    if File.exist?("saves/save_file")
+      load_game?
+    else
+      game_loop
+    end
+  end
+
+  def load_game?
+    puts "\nSave game found. Do you want to load it? (y/n)"
+    case gets.chomp
+    when 'y'
+      load_game
+    when 'n'
+      game_loop
+    else
+      puts "Invalid option."
+      load_game?
+    end
+  end
+
+  def save_game
+    Dir.mkdir("saves") unless Dir.exists?("saves")
+    File.open("saves/save_file", "w+") do |info|
+      Marshal.dump(self, info)
+    end
+  end
+
+  def load_game
+    data = nil
+    File.open("saves/save_file") do |i|
+      data = Marshal.load(i)
+    end
+
+    @player1 = data.player1
+    @player2 = data.player2
+    @board = data.board
+    @current_player = data.current_player
+
+    puts "Save file loaded"
+    game_loop
+  end
+
+  def prompt_user_input
+    print "\n#{@current_player.name}, enter the coordinates of the piece you would like to move: "
+    get_user_input
+  end
+
+  def get_user_input
+    input = gets.chomp
+    check_input(input)
+  end
+
+  def check_input(input)
+    case input
+    when 'save'
+      save_game
+      exit
+    when 'help'
+      puts instructions
+    when 'quit'
+      sure_quit?
+    else
+      input = input.split('')
+      select_piece(input)
+    end
+  end
+
+  def sure_quit?
+    print "\nAre you sure you want to quit? (y/n): "
+    input = gets.chomp
+    case input
+    when 'y'
+      exit
+    when 'n'
+      prompt_user_input
+    else
+      puts "\nInvalid answer."
+      sure_quit?
+    end
+  end
+
+  def select_piece(input)
+    if valid_input?(input)
+      from = translate_input(input)
+      if @board.valid_selection?(from, @current_player.color)
+        selected_piece = @board.board[from[0]][from[1]]
+        destination = get_destination(selected_piece)
+        @board.move_piece(selected_piece, destination)
+      else
+        puts "\nInvalid selection."
+        prompt_user_input
+      end
+    else
+      puts "\nInput invalid. Must be in letternumber format, " +
+           "a-h and 1-8, like a1 or d5."
+      prompt_user_input
     end
   end
 
@@ -46,6 +148,14 @@ class Game
   def welcome_message
     puts "\nWelcome to chess! Player 1 will be white and Player 2 will be black." +
          " White goes first."
+    puts instructions
+  end
+
+  def instructions
+    "\n     Input your piece selection, or enter the following options at any time" +
+    "\n         Type 'help' for options" +
+    "\n         Type 'save' to save and quit your game" +
+    "\n         Type 'quit' to quit without saving"
   end
 
   def reset_game
@@ -71,23 +181,6 @@ class Game
       reset_game
     else
       exit
-    end
-  end
-
-  def get_piece_selection
-    print "\n#{@current_player.name}, enter the coordinates of the piece you would like to move: "
-    from = gets.chomp.split('')
-    if valid_input?(from)
-      from = translate_input(from)
-      if @board.valid_selection?(from, @current_player.color)
-        return @board.board[from[0]][from[1]]
-      else
-        get_piece_selection
-      end
-    else
-      puts "\nInput invalid. Must be in letternumber format, " +
-           "a-h and 1-8, like a1 or d5."
-      get_piece_selection
     end
   end
 
@@ -144,4 +237,25 @@ class Game
     winner = @current_player.color == :white ? @player2 : @player1
     puts "Checkmate! #{winner.name}, you win!"
   end
+end
+
+def trash
+
+
+  # def get_piece_selection
+  #   print "\n#{@current_player.name}, enter the coordinates of the piece you would like to move: "
+  #   from = gets.chomp.split('')
+  #   if valid_input?(from)
+  #     from = translate_input(from)
+  #     if @board.valid_selection?(from, @current_player.color)
+  #       return @board.board[from[0]][from[1]]
+  #     else
+  #       get_piece_selection
+  #     end
+  #   else
+  #     puts "\nInput invalid. Must be in letternumber format, " +
+  #          "a-h and 1-8, like a1 or d5."
+  #     get_piece_selection
+  #   end
+  # end
 end
