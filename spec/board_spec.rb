@@ -82,25 +82,54 @@ describe Board do
 
   context "checking game state" do
     board = Board.new
+    describe "#white_king" do
+      it "should return the white king piece" do
+        actual = board.white_king.is_a?(King) && board.white_king.color == :white
+        expect(actual).to be true
+      end
+    end
+
+    describe "#black_king" do
+      it "should return the black king piece" do
+        actual = board.black_king.is_a?(King) && board.black_king.color == :black
+        expect(actual).to be true
+      end
+    end
+
+    describe "#checkmate?" do
+      it "should return false when enemy player's king is still in play" do
+        expect(board.checkmate?(:black)).to be false
+      end
+
+      it "should return true when enemy player's king has been captured" do
+        board.board[4][7] = nil
+        expect(board.checkmate?(:black)).to be true
+      end
+    end
+
     describe "#square_under_attack?" do
       it "should return false when no enemy piece can move to square in question" do
         expect(board.square_under_attack?([0, 3], :white)).to be false
       end
+
+      it "should return true when square can be moved into by enemy" do
+        expect(board.square_under_attack?([0, 5], :white)).to be true
+      end
     end
 
     describe "#promotion?" do
-      it "should return true when white pawn reaches far end of board" do
-        board.board[0][7] = Pawn.new(:white, [0, 7], board)
-        expect(board.promotion?(board.board[0][7])).to be true
+      it "should return true when white pawn moves to top row of board" do
+        board.board[0][6] = Pawn.new(:white, [0, 6], board)
+        expect(board.promotion?(board.board[0][6], [0, 7])).to be true
       end
 
-      it "should return true when black pawn reaches far end of board" do
-        board.board[0][0] = Pawn.new(:black, [0, 0], board)
-        expect(board.promotion?(board.board[0][0])).to be true
+      it "should return true when black pawn moves to bottom row of board" do
+        board.board[0][1] = Pawn.new(:black, [0, 1], board)
+        expect(board.promotion?(board.board[0][1], [0, 0])).to be true
       end
 
-      it "should return false when pawn has not reached opposite end" do
-        expect(board.promotion?(board.board[2][1])).to be false
+      it "should return false when pawn is moving anywhere else" do
+        expect(board.promotion?(board.board[2][1], [2, 2])).to be false
       end
     end
 

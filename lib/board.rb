@@ -25,6 +25,19 @@ class Board
     @white_right_castle = true
     @black_right_castle = true
   end
+  
+  def black_king
+    @board.each do |row|
+      row.each do |square|
+        if square.is_a?(King) && square.color == :black
+          return square
+        else
+          next
+        end
+      end
+    end
+    return
+  end
 
   def can_castle_left?(king)
     case king.color
@@ -111,8 +124,8 @@ class Board
     king.color == :white ? @white_right_castle = false : @black_right_castle = false
   end
 
-  def check_mate?(player_color)
-    player_color == :white ? @black_king.nil? : @white_king.nil?
+  def checkmate?(current_player_color)
+    current_player_color == :white ? white_king.nil? : black_king.nil?
   end
 
   def check_square(coords, player_color)
@@ -154,6 +167,10 @@ class Board
     piece.location = destination
   end
 
+  def find_king(color)
+    color == :white ? white_king : black_king
+  end
+
   def get_enemy_list(color)
     enemy_positions = []
 
@@ -165,12 +182,6 @@ class Board
     enemy_positions
   end
 
-  def get_enemy_moves(color) # Possibly obsolete
-    enemy_moves = []
-    get_enemy_list(color).each { |enemy| enemy_moves += enemy.get_moves }
-    enemy_moves
-  end
-
   def get_moves(piece)
     moves = piece.get_moves
     #moves.delete_if { |move| test_causes_check?(piece, move) }
@@ -178,7 +189,8 @@ class Board
   end
 
   def king_in_check?(color)
-    king = color == :white ? @white_king : @black_king
+    king = find_king(color)
+    return false if king.nil?
     get_enemy_list(color).each do |enemy|
       return true if @board[enemy[0]][enemy[1]].get_moves.include?(king.location)
     end
@@ -232,6 +244,9 @@ class Board
 
   def move_piece(piece, destination)
     case move_type(piece, destination)
+    when 'promotion'
+      standard_move(piece, destination)
+      promote_pawn(piece)
     when 'pawn 2'
       move_pawn_2(piece, destination)
     when 'passant capture'
@@ -256,6 +271,8 @@ class Board
     when Pawn
       if passant_vulnerable?(piece, destination)
         return 'pawn 2'
+      elsif promotion?(piece, destination)
+        return 'promotion'
       else
         return 'standard'
       end
@@ -314,42 +331,37 @@ class Board
     @left_black_rook = @board[0][7]
     @right_black_rook = @board[7][7]
 
-    @white_king = @board[4][0]
-    @black_king = @board[4][7]
+    #@white_king = @board[4][0]
+    #@black_king = @board[4][7]
   end
 
   def promote_pawn(pawn)
-    puts 'You can change it to a queen, rook, knight, or bishop'
-    puts 'Which would you like to promote it to?'
+    display_board
+    puts "\n\n\n           Your pawn has been promoted!"
+    puts "           You can change it to a queen, rook, knight, or bishop"
+    puts "           Which would you like to promote it to?"
     choice = gets.chomp.downcase
     case choice
     when 'queen'
-      @board[pawn.location[0]][pawn.location[1]] = Queen.new(pawn.color, pawn.location)
+      @board[pawn.location[0]][pawn.location[1]] = Queen.new(pawn.color, pawn.location, self)
     when 'rook'
-      @board[pawn.location[0]][pawn.location[1]] = Rook.new(pawn.color, pawn.location)
+      @board[pawn.location[0]][pawn.location[1]] = Rook.new(pawn.color, pawn.location, self)
     when 'knight'
-      @board[pawn.location[0]][pawn.location[1]] = Knight.new(pawn.color, pawn.location)
+      @board[pawn.location[0]][pawn.location[1]] = Knight.new(pawn.color, pawn.location, self)
     when 'bishop'
-      @board[pawn.location[0]][pawn.location[1]] = Bishop.new(pawn.color, pawn.location)
+      @board[pawn.location[0]][pawn.location[1]] = Bishop.new(pawn.color, pawn.location, self)
     else
       puts 'Invalid input.'
       promote_pawn(pawn)
     end
   end
 
-  def promotion?(piece)
-    if piece.color == :white
-      return piece.location[1] == 7
-    elsif piece.color == :black
-      return piece.location[1] == 0
+  def promotion?(pawn, destination)
+    if pawn.color == :white
+      return destination[1] == 7
+    elsif pawn.color == :black
+      return destination[1] == 0
     end
-  end
-
-  def promotion_check(piece) # Probably obsolete after pawn move refactoring
-    return false if !piece.instance_of?(Pawn) || !promotion?(piece)
-
-    puts 'Your pawn has been promoted!'
-    promote_pawn(piece)
   end
 
   def right_castle?(destination)
@@ -401,9 +413,47 @@ class Board
       true
     end
   end
+
+  def white_king
+    @board.each do |row|
+      row.each do |square|
+        if square.is_a?(King) && square.color == :white
+          return square
+        else
+          next
+        end
+        return
+      end
+    end
+    return
+  end
 end
 
 def trash
+
+  # def check_mate?(player_color)
+  #   player_color == :white ? @black_king.nil? : @white_king.nil?
+  # end
+
+  # def king_in_check?(color)
+  #   king = color == :white ? @white_king : @black_king
+  #   get_enemy_list(color).each do |enemy|
+  #     return true if @board[enemy[0]][enemy[1]].get_moves.include?(king.location)
+  #   end
+  #   false
+  # end
+
+  # def promotion_check(piece) # Probably obsolete after pawn move refactoring
+  #   return false if !piece.instance_of?(Pawn) || !promotion?(piece)
+
+  #   promote_pawn(piece)
+  # end
+
+  # def get_enemy_moves(color) # Possibly obsolete
+  #   enemy_moves = []
+  #   get_enemy_list(color).each { |enemy| enemy_moves += enemy.get_moves }
+  #   enemy_moves
+  # end
 
   # def square_under_attack?(coords, color)
   #   get_enemy_list(color).each do |enemy|

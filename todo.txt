@@ -1,9 +1,4 @@
-RIGHT NOW:  First: Add and/or rework needed tests
-                   Pawn move consolidation?
-            Then: 1. find_king(color)
-                  2. white_king and black_king
-                  3. checkmate?(piece, destination)
-                  4. move_type; return checkmate if checkmate?
+RIGHT NOW:  
 
 fix pawn get_captures to include passant openings
   Adding passant_opening branch to check_square function DONE
@@ -12,13 +7,7 @@ fix pawn get_captures to include passant openings
 
 May have need for pawn move function to consolidate special cases for pawns
 
-Game not recognizing checkmate, should be an easy solution
-            Try implementing a find_king method or add king_capture? method and check to move type
-              Find_king may be more useful
-              Maybe both
-            Pawns not recognizing passant vulnerabilities FIXED
-
-            MAKE SURE YOU TEST ALL OF THE ABOVE
+Game not recognizing checkmate, should be an easy solution FIXED
 
 Getting enemy moves is causing stack overload after a few moves have been made FIXED
 
@@ -50,7 +39,7 @@ Add castling DONE
          The king cannot be put in check.
          The squares that the king passes over must not be under attack.
 
-Implement promotions
+Implement promotions DONE
 
 Implement get move functions DO THIS NEXT FOR ALL PIECES
   Possibly create check_square function to be used with case statement

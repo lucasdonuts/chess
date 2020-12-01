@@ -29,14 +29,14 @@ class Game
       destination = get_destination(selected_piece)
       @board.move_piece(selected_piece, destination)
       switch_current_player
-      check_game_state
     end
   end
 
   def check_game_state
     if @board.king_in_check?(@current_player.color)
       puts check_message
-    elsif @board.check_mate?(@current_player.color)
+    elsif @board.checkmate?(@current_player.color)
+      @board.display_board
       puts checkmate_message
       game_over
     end
@@ -140,6 +140,7 @@ class Game
   end
 
   def checkmate_message
-    "Checkmate!"
+    winner = @current_player.color == :white ? @player2 : @player1
+    puts "Checkmate! #{winner.name}, you win!"
   end
 end
