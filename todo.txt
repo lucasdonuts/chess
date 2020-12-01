@@ -1,6 +1,6 @@
-RIGHT NOW:  
+RIGHT NOW: 
 
-fix pawn get_captures to include passant openings
+fix pawn get_captures to include passant openings DONE
   Adding passant_opening branch to check_square function DONE
   then trying to implement it into pawn get_captures DONE
   testing en passant captures DONE (Will continue to test)

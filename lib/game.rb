@@ -11,6 +11,7 @@ require 'pry'
 
 class Game
   attr_reader :player1, :player2, :current_player
+  attr_accessor :board # REMOVE ME
   def initialize
     @player1 = Player.new('Player 1', :white)
     @player2 = Player.new('Player 2', :black)

@@ -124,6 +124,27 @@ class Board
     king.color == :white ? @white_right_castle = false : @black_right_castle = false
   end
 
+  # def causes_check?(piece, destination)
+  #   copy = FakeBoard.new(@passant_opening, @white_left_castle, @black_left_castle, @white_right_castle, @black_right_castle)
+  #   (0..7).each do |x|
+  #     (0..7).each do |y|
+  #       square = @board[x][y]
+  #       if square.nil?
+  #         copy.board[x][y] = square
+  #       else
+  #         copy.board[x][y] = square.class.new(square.color, square.location, copy)
+  #       end
+  #     end
+  #   end
+  #   copy.move_piece(copy.board[piece.location[0]][piece.location[1]], destination)
+  #   p "King in check?: "
+  #   p copy.king_in_check?(piece.color)
+  # end
+
+  def causes_check?(piece, destination)
+    test_move(piece, destination)
+  end
+
   def checkmate?(current_player_color)
     current_player_color == :white ? white_king.nil? : black_king.nil?
   end
@@ -184,8 +205,7 @@ class Board
 
   def get_moves(piece)
     moves = piece.get_moves
-    #moves.delete_if { |move| test_causes_check?(piece, move) }
-    # moves.delete_if {|move| causes_check?(piece, move) }
+    moves.delete_if {|move| causes_check?(piece, move) }
   end
 
   def king_in_check?(color)
@@ -209,17 +229,17 @@ class Board
     elsif right_castle?(destination)
       if @white_right_castle && king.color == :white
         castle_right(king)
-        king.first_move = false
+        #king.first_move = false
       elsif @black_right_castle && king.color == :black
         castle_right(king)
-        king.first_move = false
+        #king.first_move = false
       else
         standard_move(king, destination)
-        king.first_move = false
+        #king.first_move = false
       end
     else
       standard_move(king, destination)
-      king.first_move = false
+      #king.first_move = false
     end
     if king.color == :white
       @white_right_castle = false
@@ -238,7 +258,7 @@ class Board
     @passant_opening = pawn.color == :white ? [destination[0], destination[1] - 1] : [destination[0], destination[1] + 1]
     @board[destination[0]][destination[1]] = pawn
     @board[pawn.location[0]][pawn.location[1]] = nil
-    pawn.first_move = false
+    #pawn.first_move = false
     pawn.location = destination
   end
 
@@ -262,6 +282,7 @@ class Board
       @passant_opening = nil
       standard_move(piece, destination)
     end
+    piece.first_move = false
   end
 
   def move_type(piece, destination)
@@ -392,8 +413,36 @@ class Board
     piece.location = destination
   end
 
+  def test_move(piece, destination)
+    old_location = piece.location
+    if destination == @passant_opening
+      captured = @passant_opening[1] == 2 ? @board[destination[0]][destination[1] + 1] :
+                                          @board[destination[0]][destination[1] - 1]
+    else
+      captured = @board[destination[0]][destination[1]]
+    end
+    @board[destination[0]][destination[1]] = piece
+    @board[piece.location[0]][piece.location[1]] = nil
+    piece.location = destination
+    if king_in_check?(piece.color)
+      undo_test_move(old_location, captured, piece, destination)
+      check = true
+    else
+      undo_test_move(old_location, captured, piece, destination)
+      check = false
+    end
+    check
+  end
+
+  def undo_test_move(old_location, captured, piece, destination)
+    @board[old_location[0]][old_location[1]] = piece
+    piece.location = old_location
+    @board[destination[0]][destination[1]] = nil
+    @board[captured.location[0]][captured.location[1]] = captured unless captured.nil?
+  end
+
   def valid_destination?(piece, destination)
-    moves = piece.get_moves
+    moves = get_moves(piece)
     moves.include?(destination)
   end
 
@@ -422,14 +471,64 @@ class Board
         else
           next
         end
-        return
       end
     end
     return
   end
 end
 
+class FakeBoard < Board
+  def initialize(po, wlc, blc, wrc, brc)
+    @board = Array.new(8) { Array.new(8) }
+    @passant_opening = po
+    @white_left_castle = wlc
+    @black_left_castle = blc
+    @white_right_castle = wrc
+    @black_right_castle = brc
+  end
+
+  def move_piece(piece, destination)
+    case move_type(piece, destination)
+    when 'promotion'
+      standard_move(piece, destination)
+    when 'pawn 2'
+      move_pawn_2(piece, destination)
+    when 'passant capture'
+      en_passant_capture(piece, destination)
+      @passant_opening = nil
+    when 'rook'
+      @passant_opening = nil
+      rook_move(piece, destination)
+    when 'king'
+      @passant_opening = nil
+      king_move(piece, destination)
+    else
+      @passant_opening = nil
+      standard_move(piece, destination)
+    end
+    piece.first_move = false
+  end
+end
+
+# board = Board.new
+# board.board[7][3] = Bishop.new(:black, [7, 3], board)
+# # p board.board[5][1].location
+# board.causes_check?(board.board[5][1], [5, 2])
+
+
 def trash
+  # copy.board = @board.map {|i| i.map(&:dup)}
+  # # copy_piece = copy.board[piece.location[0]][piece.location[1]]
+  # copy_bishop = copy.board[7][3]
+  # p copy_bishop.get_moves
+  # copy.display_board
+  # copy.move_piece(copy_piece, destination)
+  # p copy.board[5][1]
+  # copy.display_board
+  # p copy_bishop.get_moves
+  # p copy_piece.color
+  # p "King in check?"
+  # p copy.king_in_check?(copy_piece.color)
 
   # def check_mate?(player_color)
   #   player_color == :white ? @black_king.nil? : @white_king.nil?

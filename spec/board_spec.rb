@@ -343,19 +343,16 @@ describe Board do
           board = Board.new
           board.board[5][0] = nil
           board.board[6][0] = nil
-          white_king = board.board[4][0]
-          #white_king.first_move = false
-          board.move_piece(white_king, [5, 0])
-          expect(board.can_castle_right?(white_king)).to be false
+          board.move_piece(board.white_king, [5, 0])
+          expect(board.can_castle_right?(board.white_king)).to be false
         end
 
         it "should return false when rook has moved" do
           board = Board.new
           board.board[5][0] = nil
           board.board[6][0] = nil
-          white_king = board.board[4][0]
           board.move_piece(board.board[7][0], [7, 1])
-          expect(board.can_castle_right?(white_king)).to be false
+          expect(board.can_castle_right?(board.white_king)).to be false
         end
       end
 
@@ -415,6 +412,18 @@ describe Board do
       it "should return true when king is in check" do
         board.board[4][1] = Rook.new(:black, [4, 1], board)
         expect(board.king_in_check?(:white)).to be true
+      end
+    end
+
+    describe "#causes_check?" do
+      it "should return false when move does not put king in check" do
+        board = Board.new
+        expect(board.causes_check?(board.board[0][1], [0, 3])).to be false
+      end
+
+      it "should return true when move puts king in check" do
+        board.board[7][3] = Bishop.new(:black, [7, 3], board)
+        expect(board.causes_check?(board.board[5][1], [5, 2])).to be true
       end
     end
   end
