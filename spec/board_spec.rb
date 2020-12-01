@@ -175,9 +175,8 @@ describe Board do
 
     describe "#valid_destination?" do
       it "should return false when move puts player's king in check" do
-        skip
         board = Board.new
-        board.board[7][3] = Bishop.new(:black, [7, 3])
+        board.board[7][3] = Bishop.new(:black, [7, 3], board)
         expect(board.valid_destination?(board.board[5][1], [5, 2])).to be false
       end
 
