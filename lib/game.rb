@@ -236,3 +236,5 @@ class Game
     puts "Checkmate! #{winner.name}, you win!"
   end
 end
+
+game = Game.new
