@@ -10,14 +10,14 @@ class King < Piece
     x = @location[0]
     y = @location[1]
 
-    moves << [x, y + 1] unless @board.check_square([x, y + 1], @color) == 'friendly'
-    moves << [x, y - 1] unless @board.check_square([x, y - 1], @color) == 'friendly'
-    moves << [x + 1, y] unless @board.check_square([x + 1, y], @color) == 'friendly'
-    moves << [x + 1, y + 1] unless @board.check_square([x + 1, y + 1], @color) == 'friendly'
-    moves << [x + 1, y - 1] unless @board.check_square([x + 1, y - 1], @color) == 'friendly'
-    moves << [x - 1, y] unless @board.check_square([x - 1, y], @color) == 'friendly'
-    moves << [x - 1, y + 1] unless @board.check_square([x - 1, y + 1], @color) == 'friendly'
-    moves << [x - 1, y - 1] unless @board.check_square([x - 1, y - 1], @color) == 'friendly'
+    moves << [x, y + 1] unless y == 7 || @board.check_square([x, y + 1], @color) == 'friendly'
+    moves << [x, y - 1] unless y == 0 || @board.check_square([x, y - 1], @color) == 'friendly'
+    moves << [x + 1, y] unless x == 7 || @board.check_square([x + 1, y], @color) == 'friendly'
+    moves << [x + 1, y + 1] unless x == 7 || y == 7 || @board.check_square([x + 1, y + 1], @color) == 'friendly'
+    moves << [x + 1, y - 1] unless x == 7 || y == 0 || @board.check_square([x + 1, y - 1], @color) == 'friendly'
+    moves << [x - 1, y] unless x == 0 || @board.check_square([x - 1, y], @color) == 'friendly'
+    moves << [x - 1, y + 1] unless x == 0 || y == 7 || @board.check_square([x - 1, y + 1], @color) == 'friendly'
+    moves << [x - 1, y - 1] unless x == 0 || y == 0 || @board.check_square([x - 1, y - 1], @color) == 'friendly'
 
     moves += castling_moves
 
